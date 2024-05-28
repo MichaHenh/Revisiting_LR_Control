@@ -69,7 +69,7 @@ model = NeuralNetwork().to(device)
 print(model)
 
 loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=1e-3, momentum=0.9)
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.012763111606921222)
 
 def train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)

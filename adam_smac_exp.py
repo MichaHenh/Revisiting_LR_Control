@@ -3,12 +3,15 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
-from parameterfree.cocob_optimizer import COCOB
-from parameterfree.code_optimizer import CODE
 from torch.optim import AdamW
 from ConfigSpace import Configuration, ConfigurationSpace, Float
 from smac import HyperparameterOptimizationFacade as HPOFacade
-from smac import RunHistory, Scenario
+from smac import Scenario
+from dacbench.runner import run_benchmark
+from parameterfree.parameter_free_sgd_benchmark import ParameterFreeSGDBenchmark
+from dacbench.agents import StaticAgent
+from dacbench.wrappers import PerformanceTrackingWrapper
+from dacbench.benchmarks import SGDBenchmark
 
 # Download training data from open datasets.
 training_data = datasets.FashionMNIST(
@@ -53,11 +56,11 @@ class NeuralNetwork(nn.Module):
         super().__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(28*28, 512),
+            nn.Linear(28*28, 1000),
             nn.ReLU(),
-            nn.Linear(512, 512),
+            nn.Linear(1000, 1000),
             nn.ReLU(),
-            nn.Linear(512, 10)
+            nn.Linear(1000, 10)
         )
 
     @property
@@ -128,44 +131,16 @@ incumbent_cost = smac.validate(incumbent)
 print(f"Incumbent cost: {incumbent_cost}")
 
 
+### Test Model using DACBench
 
-def train(dataloader, model, loss_fn, optimizer):
-    size = len(dataloader.dataset)
-    model.train()
-    for batch, (X, y) in enumerate(dataloader):
-        X, y = X.to(device), y.to(device)
 
-        # Compute prediction error
-        pred = model(X)
-        loss = loss_fn(pred, y)
 
-        # Backpropagation
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
+# Result output path
+path = "dacbench_tabular"
 
-        if batch % 100 == 0:
-            loss, current = loss.item(), (batch + 1) * len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+bench_env = PerformanceTrackingWrapper(SGDBenchmark().get_benchmark())
 
-def test(dataloader, model, loss_fn):
-    size = len(dataloader.dataset)
-    num_batches = len(dataloader)
-    model.eval()
-    test_loss, correct = 0, 0
-    with torch.no_grad():
-        for X, y in dataloader:
-            X, y = X.to(device), y.to(device)
-            pred = model(X)
-            test_loss += loss_fn(pred, y).item()
-            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
-    test_loss /= num_batches
-    correct /= size
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
-
-#epochs = 5
-#for t in range(epochs):
-#    print(f"Epoch {t+1}\n-------------------------------")
-#    train(train_dataloader, model, loss_fn, optimizer)
-#    test(test_dataloader, model, loss_fn)
-#print("Done!")
+# Run SGD benchmark
+run_benchmark(bench_env, StaticAgent(bench_env, incumbent["lr"]), 30)
+print(bench_env.get_performance())
+bench_env.render_performance()
