@@ -25,4 +25,4 @@ for seed in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
     
     # This could be any optimization or learning method
     agent = CosineAnnealingAgent(env)
-    run_benchmark(env, agent, num_episodes=10, logger=logger)
+    run_benchmark(env, agent, num_episodes=30, logger=logger)
