@@ -32,6 +32,7 @@ class DAC(nn.Module):
     def __init__(self, seed) -> None:
         # Get benchmark env
         bench = SGDBenchmark()
+        self.seed = seed
         self.env = bench.get_benchmark(seed=seed)
         
         self.env = PerformanceTrackingWrapper(self.env)
@@ -39,7 +40,7 @@ class DAC(nn.Module):
 
     @property
     def configspace(self) -> ConfigurationSpace:
-        cs = ConfigurationSpace(seed=0)
+        cs = ConfigurationSpace(seed=self.seed)
         lr = Float("lr", (0, 0.005), default=1e-3)
         cs.add_hyperparameters([lr])
 
