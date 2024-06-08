@@ -1,4 +1,5 @@
 import torch
+import json
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
@@ -8,37 +9,12 @@ from ConfigSpace import Configuration, ConfigurationSpace, Float
 from smac import HyperparameterOptimizationFacade as HPOFacade
 from smac import Scenario
 from dacbench.runner import run_benchmark
-from parameterfree.parameter_free_sgd_benchmark import ParameterFreeSGDBenchmark
-from dacbench.agents import StaticAgent
-from dacbench.wrappers import PerformanceTrackingWrapper
+from dacbench.wrappers import PerformanceTrackingWrapper, PolicyProgressWrapper
 from dacbench.benchmarks import SGDBenchmark
-
-# Download training data from open datasets.
-training_data = datasets.FashionMNIST(
-    root="data",
-    train=True,
-    download=True,
-    transform=ToTensor(),
-)
-
-# Download test data from open datasets.
-test_data = datasets.FashionMNIST(
-    root="data",
-    train=False,
-    download=True,
-    transform=ToTensor(),
-)
-
-batch_size = 64
-
-# Create data loaders.
-train_dataloader = DataLoader(training_data, batch_size=batch_size)
-test_dataloader = DataLoader(test_data, batch_size=batch_size)
-
-for X, y in test_dataloader:
-    print(f"Shape of X [N, C, H, W]: {X.shape}")
-    print(f"Shape of y: {y.shape} {y.dtype}")
-    break
+from dacbench.logger import Logger
+from pathlib import Path
+from dacbench.abstract_agent import AbstractDACBenchAgent
+from smac.runhistory.dataclasses import TrialValue
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -50,97 +26,80 @@ device = (
 )
 print(f"Using {device} device")
 
-# Define model
-class NeuralNetwork(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(28*28, 1000),
-            nn.ReLU(),
-            nn.Linear(1000, 1000),
-            nn.ReLU(),
-            nn.Linear(1000, 10)
-        )
+class SMACLRAgent(AbstractDACBenchAgent):
+    """Agent for Learning Rate in SGD Benchmark using SMAC"""
 
-    @property
-    def configspace(self) -> ConfigurationSpace:
-        cs = ConfigurationSpace(seed=0)
-        lr = Float("lr", (0, 0.1), default=1e-3)
-        cs.add_hyperparameters([lr])
+    def __init__(self, env, configspace, n_trials):
+        """Initialize the Agent."""
+        self.scenario = Scenario(configspace, deterministic=True, n_trials=n_trials)
+        def dummy_train(self, config: Configuration, seed: int = 0) -> float:
+            pass
+        self.smac = HPOFacade(
+            self.scenario,
+            dummy_train,  # We pass the target function here
+            overwrite=True,  # Overrides any previous results that are found that are inconsistent with the meta-data
+            )
+        super().__init__(env)
 
-        return cs
+    def act(self, state=None, reward=None):
+        """Returns the next action."""
+        print("SMAC act")
+        self.current_info = self.smac.ask()
+        assert self.current_info.seed is not None
 
-    def forward(self, x):
-        x = self.flatten(x)
-        logits = self.linear_relu_stack(x)
-        return logits
+        return self.current_info.config["lr"]
 
-    def train_smac(self, config: Configuration, seed: int = 0) -> float:
-        """Returns the y value of a quadratic function with a minimum we know to be at x=0."""
-        lr = config["lr"]
+    def train(self, state=None, reward=None):  # noqa: D102
+        value = TrialValue(cost=reward, time=0.5)
+        self.smac.tell(self.current_info, value=value)
 
-        loss_fn = nn.CrossEntropyLoss()
-        optimizer = AdamW(self.parameters(), lr=lr)
-
-        num_batches = len(train_dataloader)
-        self.train()
-        losses = 0
-        for batch, (X, y) in enumerate(train_dataloader):
-            X, y = X.to(device), y.to(device)
-
-            # Compute prediction error
-            pred = model(X)
-            loss = loss_fn(pred, y)
-            losses += loss.item()
-
-            # Backpropagation
-            loss.backward()
-            optimizer.step()
-            optimizer.zero_grad()
-
-        ls = losses / num_batches
-        print(f"Current loss: {ls}")
+    def end_episode(self, state=None, reward=None):  # noqa: D102
+        pass
 
 
-        return ls
 
-    
-
-model = NeuralNetwork().to(device)
-print(model)
-
-scenario = Scenario(model.configspace, deterministic=True, n_trials=10)
-
-smac = HPOFacade(
-        scenario,
-        model.train_smac,  # We pass the target function here
-        overwrite=True,  # Overrides any previous results that are found that are inconsistent with the meta-data
-    )
-
-incumbent = smac.optimize()
-
-print(f"Incumbent: {incumbent}")
+#print(f"Incumbent: {incumbent}")
 
 # Get cost of default configuration
-default_cost = smac.validate(model.configspace.get_default_configuration())
-print(f"Default cost: {default_cost}")
+#default_cost = smac.validate(model.configspace.get_default_configuration())
+#print(f"Default cost: {default_cost}")
 
 # Let's calculate the cost of the incumbent
-incumbent_cost = smac.validate(incumbent)
-print(f"Incumbent cost: {incumbent_cost}")
+#incumbent_cost = smac.validate(incumbent)
+#print(f"Incumbent cost: {incumbent_cost}")
 
 
 ### Test Model using DACBench
 
 
+def setup_env(seed):
+    # Get benchmark env
+    bench = SGDBenchmark()
+    env = bench.get_benchmark(seed=seed)
+    
+    # Make logger to write results to file
+    logger = Logger(experiment_name=f"smac_s{seed}", output_path=Path("results"))
+    perf_logger = logger.add_module(PerformanceTrackingWrapper)
+    pol_logger = logger.add_module(PolicyProgressWrapper)
+    
+    env = PerformanceTrackingWrapper(env, logger=perf_logger)
+    def dummy(d):
+        return 0
+    env = PolicyProgressWrapper(env, dummy)
+    logger.set_env(env)
+    logger.set_additional_info(seed=seed)
+    
+    return env, logger
 
-# Result output path
-path = "dacbench_tabular"
+for seed in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+    env, logger = setup_env(seed)
+    
+    cs = ConfigurationSpace(seed=seed)
+    lr = Float("lr", (0, 0.01), default=1e-3)
+    cs.add_hyperparameters([lr])
 
-bench_env = PerformanceTrackingWrapper(SGDBenchmark().get_benchmark())
-
-# Run SGD benchmark
-run_benchmark(bench_env, StaticAgent(bench_env, incumbent["lr"]), 30)
-print(bench_env.get_performance())
-bench_env.render_performance()
+    # This could be any optimization or learning method
+    agent = SMACLRAgent(env, cs, 3000)
+    run_benchmark(env, agent, num_episodes=30, logger=logger)
+    with open('results/' + logger.experiment_name + "/Policy.jsonl", 'w') as file:
+        json.dump(env.policy_progress, file)
