@@ -15,4 +15,4 @@ module load Miniconda3
 
 conda activate BAPFDAC
 
-python cocob_exp.py
+python adam_fixed_exp.py

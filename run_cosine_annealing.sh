@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=cocob_benchmark
+#SBATCH --job-name=cosine_annealing_benchmark
 #SBATCH --partition=ai
 #SBATCH --ntasks=16
 #SBATCH --mem-per-cpu=2G
@@ -15,4 +15,4 @@ module load Miniconda3
 
 conda activate BAPFDAC
 
-python cocob_exp.py
+python adam_cosine_annealing_exp.py
