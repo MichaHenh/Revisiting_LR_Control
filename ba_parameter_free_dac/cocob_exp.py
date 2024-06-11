@@ -4,19 +4,20 @@ from dacbench.wrappers import PerformanceTrackingWrapper
 from dacbench.logger import Logger
 from pathlib import Path
 
-from parameterfree.cocob_optimizer import COCOB
-from parameterfree.parameter_free_sgd_benchmark import ParameterFreeSGDBenchmark
+from parameterfree import COCOB
+from dacbench_custom.custom_sgd_benchmark import CustomSGDBenchmark
+from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
 
 def setup_env(seed):
     # Get benchmark env
-    bench = ParameterFreeSGDBenchmark(COCOB)
+    bench = CustomSGDBenchmark(optimizer_type=COCOB)
     env = bench.get_benchmark(seed=seed)
     
     # Make logger to write results to file
     logger = Logger(experiment_name=f"cocob_s{seed}", output_path=Path("results"))
-    perf_logger = logger.add_module(PerformanceTrackingWrapper)
+    perf_logger = logger.add_module(CustomTrackingWrapper)
     
-    env = PerformanceTrackingWrapper(env, logger=perf_logger)
+    env = CustomTrackingWrapper(env, logger=perf_logger)
     logger.set_env(env)
     logger.set_additional_info(seed=seed)
     

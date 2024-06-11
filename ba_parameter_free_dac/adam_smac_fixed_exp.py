@@ -1,20 +1,16 @@
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
-from torchvision import datasets
-from torchvision.transforms import ToTensor
 from torch.optim import AdamW
 from ConfigSpace import Configuration, ConfigurationSpace, Float
 from smac import HyperparameterOptimizationFacade as HPOFacade
 from smac import Scenario
 from dacbench.runner import run_benchmark
-from parameterfree.parameter_free_sgd_benchmark import ParameterFreeSGDBenchmark
 from dacbench.agents import StaticAgent
 from dacbench.wrappers import PerformanceTrackingWrapper
 from dacbench.benchmarks import SGDBenchmark
 from dacbench.logger import Logger
 from pathlib import Path
-from smac.runhistory.dataclasses import TrialValue
+from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -41,7 +37,7 @@ class DAC(nn.Module):
     @property
     def configspace(self) -> ConfigurationSpace:
         cs = ConfigurationSpace(seed=self.seed)
-        lr = Float("lr", (0, 0.005), default=1e-3)
+        lr = Float("lr", (0, 0.01), default=1e-3)
         cs.add_hyperparameters([lr])
 
         return cs
@@ -100,9 +96,9 @@ def setup_env(seed):
     
     # Make logger to write results to file
     logger = Logger(experiment_name=f"smac_best_fixed_s{seed}", output_path=Path("results"))
-    perf_logger = logger.add_module(PerformanceTrackingWrapper)
+    perf_logger = logger.add_module(CustomTrackingWrapper)
     
-    env = PerformanceTrackingWrapper(env, logger=perf_logger)
+    env = CustomTrackingWrapper(env, logger=perf_logger)
     logger.set_env(env)
     logger.set_additional_info(seed=seed)
     

@@ -1,15 +1,11 @@
 import torch
 import json
-from torch import nn
-from torch.utils.data import DataLoader
-from torchvision import datasets
-from torchvision.transforms import ToTensor
-from torch.optim import AdamW
 from ConfigSpace import Configuration, ConfigurationSpace, Float
 from smac import HyperparameterOptimizationFacade as HPOFacade
 from smac import Scenario
 from dacbench.runner import run_benchmark
-from dacbench.wrappers import PerformanceTrackingWrapper, PolicyProgressWrapper
+from dacbench.wrappers import PolicyProgressWrapper
+from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
 from dacbench.benchmarks import SGDBenchmark
 from dacbench.logger import Logger
 from pathlib import Path
@@ -32,8 +28,10 @@ class SMACLRAgent(AbstractDACBenchAgent):
     def __init__(self, env, configspace, n_trials):
         """Initialize the Agent."""
         self.scenario = Scenario(configspace, deterministic=True, n_trials=n_trials)
+
         def dummy_train(self, config: Configuration, seed: int = 0) -> float:
             pass
+
         self.smac = HPOFacade(
             self.scenario,
             dummy_train,  # We pass the target function here
@@ -79,10 +77,10 @@ def setup_env(seed):
     
     # Make logger to write results to file
     logger = Logger(experiment_name=f"smac_s{seed}", output_path=Path("results"))
-    perf_logger = logger.add_module(PerformanceTrackingWrapper)
-    pol_logger = logger.add_module(PolicyProgressWrapper)
+    perf_logger = logger.add_module(CustomTrackingWrapper)
+    logger.add_module(PolicyProgressWrapper)
     
-    env = PerformanceTrackingWrapper(env, logger=perf_logger)
+    env = CustomTrackingWrapper(env, logger=perf_logger)
     def dummy(d):
         return 0
     env = PolicyProgressWrapper(env, dummy)
