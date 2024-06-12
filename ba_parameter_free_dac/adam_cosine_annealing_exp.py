@@ -1,5 +1,5 @@
 from dacbench.runner import run_benchmark
-from dacbench.wrappers import PerformanceTrackingWrapper
+from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
 from dacbench.logger import Logger
 from pathlib import Path
 from dacbench.benchmarks import SGDBenchmark
@@ -12,9 +12,9 @@ def setup_env(seed):
     
     # Make logger to write results to file
     logger = Logger(experiment_name=f"cosine_annealing_s{seed}", output_path=Path("results"))
-    perf_logger = logger.add_module(PerformanceTrackingWrapper)
+    perf_logger = logger.add_module(CustomTrackingWrapper)
     
-    env = PerformanceTrackingWrapper(env, logger=perf_logger)
+    env = CustomTrackingWrapper(env, logger=perf_logger)
     logger.set_env(env)
     logger.set_additional_info(seed=seed)
     

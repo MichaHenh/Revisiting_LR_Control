@@ -15,4 +15,4 @@ module load Miniconda3
 
 conda activate BAPFDAC
 
-python ba_parameter_free_dac/adam_cosine_annealing.py
+python ba_parameter_free_dac/adam_cosine_annealing_exp.py
