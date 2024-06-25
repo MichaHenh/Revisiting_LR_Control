@@ -104,7 +104,7 @@ def setup_env(seed):
     
     return env, logger
 
-for seed in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+for seed in range(1, 11):
     env, logger = setup_env(seed)
     
     # This could be any optimization or learning method

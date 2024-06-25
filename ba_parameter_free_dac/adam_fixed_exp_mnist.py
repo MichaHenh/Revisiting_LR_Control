@@ -1,15 +1,25 @@
 from dacbench.runner import run_benchmark
 from dacbench.logger import Logger
 from pathlib import Path
-from dacbench.benchmarks import SGDBenchmark
+
+from dacbench.abstract_benchmark import objdict
+from dacbench_custom.custom_sgd_benchmark import CustomSGDBenchmark
 from dacbench.agents import StaticAgent
 from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
+from torch.optim import AdamW
 
 def setup_env(seed):
+    cfg = objdict(
+        {
+        "cutoff": 30,
+        "seed": seed
+        }
+    )
     # Get benchmark env
-    bench = SGDBenchmark()
-    env = bench.get_benchmark(seed=seed)
-    
+    bench = CustomSGDBenchmark(AdamW, config=cfg)
+    #bench = SGDBenchmark()
+    env = bench.get_environment()
+
     # Make logger to write results to file
     logger = Logger(experiment_name=f"adam_fixed_s{seed}", output_path=Path("results"))
     perf_logger = logger.add_module(CustomTrackingWrapper)
@@ -20,9 +30,9 @@ def setup_env(seed):
     
     return env, logger
 
-for seed in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+for seed in range(1, 11):
     env, logger = setup_env(seed)
     
     # This could be any optimization or learning method
     agent = StaticAgent(env, 1e-3)
-    run_benchmark(env, agent, num_episodes=30, logger=logger)
+    run_benchmark(env, agent, num_episodes=1, logger=logger)
