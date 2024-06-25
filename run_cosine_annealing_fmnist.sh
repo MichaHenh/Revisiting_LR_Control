@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=cosine_annealing_benchmark
+#SBATCH --job-name=cosine_annealing_benchmark_fmnist
 #SBATCH --partition=ai
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
@@ -8,11 +8,11 @@
 #SBATCH --time=04:00:00
 #SBATCH --mail-user=finn.micha.henheik@stud.uni-hannover.de
 #SBATCH --mail-type=FAIL
-#SBATCH --output cosine_annealing_benchmark.out
-#SBATCH --error cosine_annealing_benchmark.err
+#SBATCH --output cosine_annealing_benchmark_fmnist.out
+#SBATCH --error cosine_annealing_benchmark_fmnist.err
 
 module load Miniconda3
 
 conda activate BAPFDAC
 
-python ba_parameter_free_dac/adam_cosine_annealing_exp_mnist.py
+python ba_parameter_free_dac/adam_cosine_annealing_exp_fashion_mnist.py
