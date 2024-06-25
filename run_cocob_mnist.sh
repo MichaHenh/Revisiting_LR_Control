@@ -15,4 +15,4 @@ module load Miniconda3
 
 conda activate BAPFDAC
 
-python ba_parameter_free_dac/cocob_exp.py
+python ba_parameter_free_dac/cocob_exp_mnist.py

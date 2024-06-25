@@ -1,4 +1,4 @@
-"""Benchmark for SGD."""
+"""Custom Benchmark for SGD."""
 from __future__ import annotations
 
 import csv
@@ -10,7 +10,7 @@ from gymnasium import spaces
 from torch import nn
 
 from dacbench.abstract_benchmark import AbstractBenchmark, objdict
-from dacbench.envs.env_utils import utils
+from dacbench.envs.env_utils import sgd_utils
 import dacbench.envs
 from dacbench_custom.custom_sgd import CustomSGDEnv
 
@@ -58,28 +58,38 @@ SGD_DEFAULTS = objdict(
         ],
         "reward_range": [-(10**9), (10**9)],
         "device": "cpu",
-        "use_generator": False,  # If true, generates:
+        "model_from_dataset": False,  # If true, generates:
         # random model, optimizer_params, batch_size, crash_penalty
         "layer_specification": [
             (
-                utils.LayerType.CONV2D,
-                {"in_channels": 1, "out_channels": 16, "kernel_size": 3},
+                sgd_utils.LayerType.CONV2D,
+                {"in_channels": 1, "out_channels": 32, "kernel_size": 3},
             ),
-            (utils.LayerType.POOLING, {"kernel_size": 2}),
-            (utils.LayerType.FLATTEN, {}),
+            (sgd_utils.LayerType.RELU, {}),
             (
-                utils.LayerType.LINEAR,
-                {"in_features": 16 * 13 * 13, "out_features": 128},
+                sgd_utils.LayerType.CONV2D,
+                {"in_channels": 32, "out_channels": 64, "kernel_size": 3},
             ),
-            (utils.LayerType.LINEAR, {"in_features": 128, "out_features": 10}),
-            (utils.LayerType.LINEAR, {"in_features": 10, "out_features": 5}),
+            (sgd_utils.LayerType.RELU, {}),
+            (sgd_utils.LayerType.POOLING, {"kernel_size": 2}),
+            (sgd_utils.LayerType.DROPOUT, {"p": 0.25}),
+            (sgd_utils.LayerType.FLATTEN, {"start_dim": 1}),
+            (
+                sgd_utils.LayerType.LINEAR,
+                {"in_features": 9216, "out_features": 128},
+            ),
+            (sgd_utils.LayerType.RELU, {}),
+            (sgd_utils.LayerType.DROPOUT, {"p": 0.25}),
+            (sgd_utils.LayerType.LINEAR, {"in_features": 128, "out_features": 10}),
+            (sgd_utils.LayerType.LOGSOFTMAX, {"dim": 1}),
         ],
+        "torch_hub_model": (False, False, False),
         "optimizer_params": {
             "weight_decay": 10.978902603194243,
             "eps": 1.2346464628039852e-10,
             "betas": (0.9994264825468422, 0.9866804882743139),
         },
-        "cutoff": 1e2,
+        "cutoff": 5,
         "loss_function": __default_loss_function,
         "loss_function_kwargs": {},
         "training_batch_size": 64,
@@ -91,10 +101,11 @@ SGD_DEFAULTS = objdict(
         # "state_method":,       # Can be set, to replace the default function
         "use_momentum": False,
         "seed": 0,
-        "crash_penalty": 100.0,
+        "crash_penalty": -100.0,
         "multi_agent": False,
         "instance_set_path": "../instance_sets/sgd/sgd_train_100instances.csv",
         "benchmark_info": INFO,
+        "epoch_mode": True,
     }
 )
 
@@ -110,11 +121,11 @@ class CustomSGDBenchmark(AbstractBenchmark):
         config_path : str
             Path to config file (optional)
         """
-        self.optimizer_type = optimizer_type
         super().__init__(config_path, config)
+        self.optimizer_type = optimizer_type
         if not self.config:
             self.config = objdict(SGD_DEFAULTS.copy())
-
+        
         for key in SGD_DEFAULTS:
             if key not in self.config:
                 self.config[key] = SGD_DEFAULTS[key]
