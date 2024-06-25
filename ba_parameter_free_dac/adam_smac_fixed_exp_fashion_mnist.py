@@ -127,4 +127,4 @@ for seed in range(1, 11):
     
     # This could be any optimization or learning method
     agent = StaticAgent(env, incumbent["lr"])
-    run_benchmark(env, agent, num_episodes=30, logger=logger)
+    run_benchmark(env, agent, num_episodes=1, logger=logger)
