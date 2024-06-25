@@ -15,4 +15,4 @@ module load Miniconda3
 
 conda activate BAPFDAC
 
-python ba_parameter_free_dac/adam_smac_fixed_exp.py
+python ba_parameter_free_dac/adam_smac_fixed_exp_mnist.py

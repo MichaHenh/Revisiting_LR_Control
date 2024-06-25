@@ -32,7 +32,8 @@ class DAC(nn.Module):
         cfg = objdict(
             {
             "epoch_mode": False,
-            "seed": seed
+            "seed": seed,
+            "dataset_name": "FashionMNIST",
             }
         )
         # Get benchmark env
@@ -102,7 +103,8 @@ def setup_env(seed):
     cfg = objdict(
         {
         "cutoff": 30,
-        "seed": seed
+        "seed": seed,
+        "dataset_name": "FashionMNIST",
         }
     )
     # Get benchmark env
@@ -111,7 +113,7 @@ def setup_env(seed):
     env = bench.get_environment()
 
     # Make logger to write results to file
-    logger = Logger(experiment_name=f"adam_fixed_s{seed}", output_path=Path("results"))
+    logger = Logger(experiment_name=f"adam_fixed_fmnist_s{seed}", output_path=Path("results"))
     perf_logger = logger.add_module(CustomTrackingWrapper)
     
     env = CustomTrackingWrapper(env, logger=perf_logger)
