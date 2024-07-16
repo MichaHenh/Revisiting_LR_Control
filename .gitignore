@@ -1,8 +1,0 @@
-*__pycache__/
-/data/
-/smac3_output/
-/results
-/results_mnist
-/results_mnist_old
-ba_parameter_free_dac/data
-.vscode

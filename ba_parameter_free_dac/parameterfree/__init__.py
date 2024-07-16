@@ -1,1 +1,0 @@
-from .cocob_optimizer import COCOB
