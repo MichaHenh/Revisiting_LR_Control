@@ -1,0 +1,25 @@
+defaults:
+  - cluster/local
+
+hydra:
+  run:
+    dir: results/${name}_${dacbench_sgd_config.dataset_name}
+  sweep:
+    dir: results/${name}_${dacbench_sgd_config.dataset_name}
+  job:
+    chdir: true
+
+name: COCOB_benchmark
+seeds: [1]
+agent:
+  type: StaticAgent
+  lr: 1
+num_episodes: 1
+optimizer_type: COCOB
+
+dacbench_sgd_config:
+  optimizer_params: null
+  epoch_mode: False
+  cutoff: 200
+  dataset_name: CIFAR10
+  torch_hub_model: ['pytorch/vision:v0.10.0', 'resnet18', False]

@@ -1,0 +1,22 @@
+defaults:
+  - cluster/local
+
+hydra:
+  run:
+    dir: results/${name}_${dacbench_sgd_config.dataset_name}
+  sweep:
+    dir: results/${name}_${dacbench_sgd_config.dataset_name}
+  job:
+    chdir: true
+
+name: Adam_fixed_benchmark
+seeds: [1,2,3,4,5,6,7,8,9,10]
+agent:
+  type: StaticAgent
+  lr: 1
+num_episodes: 1
+optimizer_type: adam
+
+dacbench_sgd_config:
+  cutoff: 30
+  dataset_name: MNIST
