@@ -13,10 +13,10 @@ from dacbench.abstract_benchmark import objdict
 
 
 cfg = objdict()
-cfg["epoch_mode"] =  False
-cfg["cutoff"] = 20
+cfg["epoch_mode"] =  True
+cfg["cutoff"] = 5
 cfg["dataset_name"] = 'CIFAR10'
-cfg["torch_hub_model"] = ('pytorch/vision:v0.10.0', 'resnet18', False)
+cfg["torch_hub_model"] = ("chenyaofo/pytorch-cifar-models", "cifar10_resnet20", False)
 
 
 bench = SGDBenchmark(config=cfg)

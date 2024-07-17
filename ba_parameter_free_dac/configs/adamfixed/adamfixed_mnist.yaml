@@ -9,15 +9,14 @@ hydra:
   job:
     chdir: true
 
-name: COCOB_benchmark
+name: Adam_fixed_benchmark
 seeds: [1,2,3,4,5,6,7,8,9,10]
 agent:
   type: StaticAgent
-  lr: 1
+  lr: 0.001
 num_episodes: 1
-optimizer_type: COCOB
+optimizer_type: adam
 
 dacbench_sgd_config:
-  optimizer_params: null
   cutoff: 30
-  dataset_name: FashionMNIST
+  dataset_name: MNIST

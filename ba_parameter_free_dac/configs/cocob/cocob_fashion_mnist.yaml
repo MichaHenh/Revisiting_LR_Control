@@ -9,18 +9,15 @@ hydra:
   job:
     chdir: true
 
-name: CAWR_benchmark
+name: COCOB_benchmark
 seeds: [1,2,3,4,5,6,7,8,9,10]
 agent:
-  type: CosineAnnealingWRAgent
-  T_0: 10
-  eta_min: 0
-  base_lr: 0.05
-  t_mult: 2
+  type: StaticAgent
+  lr: 1
 num_episodes: 1
-optimizer_type: adam
+optimizer_type: COCOB_trackable
 
 dacbench_sgd_config:
-  epoch_mode: False
+  optimizer_params: null
   cutoff: 30
-  dataset_name: MNIST
+  dataset_name: FashionMNIST
