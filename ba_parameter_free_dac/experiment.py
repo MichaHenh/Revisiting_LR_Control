@@ -59,7 +59,7 @@ def setup_env(seed, cfg):
     return env, logger
 
 def run(cfg):
-    for seed in cfg.seeds:
-        env, logger = setup_env(seed, cfg)
+#    for seed in cfg.seeds:
+    env, logger = setup_env(cfg.seed, cfg)
 
-        run_benchmark(env, get_agent(cfg.agent, env), num_episodes=cfg.num_episodes, logger=logger)
+    run_benchmark(env, get_agent(cfg.agent, env), num_episodes=cfg.num_episodes, logger=logger)

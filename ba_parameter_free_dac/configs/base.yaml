@@ -1,15 +1,15 @@
 defaults:
-  - cluster/local
+  - cluster/cpu
 
 hydra:
   run:
-    dir: results/${method}_${benchmark}/${seed}
+    dir: results/${name}_${dacbench_sgd_config.dataset_name}/${seed}
   sweep:
-    dir: results/${method}_${benchmark}/${seed}
+    dir: results/${name}_${dacbench_sgd_config.dataset_name}/${seed}
   job:
     chdir: true
 
-method: 1
-benchmark: 4
+name: base
 seed: 0
-id: 0
+dacbench_sgd_config:
+  dataset_name: dataset
