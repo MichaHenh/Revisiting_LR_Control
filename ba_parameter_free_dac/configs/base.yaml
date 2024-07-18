@@ -1,5 +1,5 @@
 defaults:
-  - cluster/cpu
+  - cluster/local
 
 hydra:
   run:
@@ -13,4 +13,4 @@ name: base
 seed: 0
 dacbench_sgd_config:
   dataset_name: dataset
-  instance_set_path: ../instance_sets/sgd/sgd_train_100instances.csv
+  instance_set_path: ../../../../../instance_sets/sgd/sgd_train_100instances.csv
