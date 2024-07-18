@@ -148,7 +148,7 @@ class CustomSGDEnv(SGDEnv):
             )
 
         self.learning_rate = None
-        self.optimizer_type = torch.optim.AdamW
+        #self.optimizer_type = torch.optim.AdamW
         self.info = {}
         self._done = False
 
