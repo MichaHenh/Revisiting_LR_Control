@@ -5,6 +5,7 @@ import csv
 from pathlib import Path
 
 import ConfigSpace as CS  # noqa: N817
+import dacbench.envs
 import numpy as np
 from gymnasium import spaces
 from torch import nn
@@ -25,6 +26,8 @@ class CustomSGDBenchmark(SGDBenchmark):
         config_path : str
             Path to config file (optional)
         """
+        #if "instance_set_path" not in config:
+        #    config["instance_set_path"] = str(Path(dacbench.envs.__file__).resolve().parent / SGD_DEFAULTS["instance_set_path"])
         super(CustomSGDBenchmark, self).__init__(config_path, config)
         self.optimizer_type = optimizer_type
 

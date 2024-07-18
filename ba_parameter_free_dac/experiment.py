@@ -48,7 +48,7 @@ def setup_env(seed, cfg):
     env = bench.get_environment()
     
     # Make logger to write results to file
-    logger = Logger(experiment_name=f"s{seed}", output_path=Path('.'))
+    logger = Logger(experiment_name=".", output_path=Path('.'))
     perf_logger = logger.add_module(CustomTrackingWrapper)
     
     env = CustomTrackingWrapper(env, logger=perf_logger,

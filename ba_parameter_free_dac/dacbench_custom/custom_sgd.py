@@ -4,11 +4,11 @@ from __future__ import annotations
 import numpy as np
 import torch
 
-from dacbench import AbstractMADACEnv
+from dacbench.envs import SGDEnv
 from dacbench.envs.env_utils import sgd_utils
 from dacbench.envs.env_utils.sgd_utils import random_torchvision_loader
 
-
+'''
 def _optimizer_action(
     optimizer: torch.optim.Optimizer, action: float, use_momentum: bool
 ) -> None:
@@ -92,9 +92,9 @@ def run_epoch(model, loss_function, loader, optimizer, device="cpu"):
         last_loss = loss
         running_loss += last_loss.mean().item()
     return last_loss.mean().detach(), running_loss / len(loader)
+'''
 
-
-class CustomSGDEnv(AbstractMADACEnv):
+class CustomSGDEnv(SGDEnv):
     """The SGD DAC Environment implements the problem of dynamically configuring
     the learning rate hyperparameter of a neural network optimizer
     (more specifically, torch.optim.AdamW) for a supervised learning task.
@@ -113,128 +113,8 @@ class CustomSGDEnv(AbstractMADACEnv):
 
     def __init__(self, config, optimizer_type):
         """Init env."""
-        super().__init__(config)
-        self.epoch_mode = config.get("epoch_mode", True)
-        self.device = config.get("device")
-
-        self.learning_rate = None
+        super(CustomSGDEnv, self).__init__(config)
         self.optimizer_type = optimizer_type
-        self.optimizer_params = config.get("optimizer_params")
-        self.batch_size = config.get("training_batch_size")
-        self.model = config.get("model")
-        self.crash_penalty = config.get("crash_penalty")
-        self.loss_function = config.loss_function(**config.loss_function_kwargs)
-        self.dataset_name = config.get("dataset_name")
-        self.use_momentum = config.get("use_momentum")
-        self.use_generator = config.get("model_from_dataset")
-        self.torchub_model = config.get("torch_hub_model", (False, None, False))
-
-        # Use default reward function, if no specific function is given
-        self.get_reward = config.get("reward_function", self.get_default_reward)
-
-        # Use default state function, if no specific function is given
-        self.get_state = config.get("state_method", self.get_default_state)
-
-        # Get loaders for instance
-        self.datasets, loaders = random_torchvision_loader(
-            config.get("seed"),
-            config.get("instance_set_path"),
-            self.dataset_name,
-            self.batch_size,
-            config.get("fraction_of_dataset"),
-            config.get("train_validation_ratio"),
-        )
-        self.train_loader, self.validation_loader, self.test_loader = loaders
-
-    def step(self, action: float):
-        """Update the parameters of the neural network using the given learning rate lr,
-        in the direction specified by AdamW, and if not done (crashed/cutoff reached),
-        performs another forward/backward pass (update only in the next step).
-        """
-        truncated = super().step_()
-        info = {}
-        if isinstance(action, float):
-            action = [action]
-        self.optimizer = _optimizer_action(self.optimizer, action, self.use_momentum)
-
-        if self.epoch_mode:
-            self.loss, self.average_loss = run_epoch(
-                self.model,
-                self.loss_function,
-                self.train_loader,
-                self.optimizer,
-                self.device,
-            )
-        else:
-            train_args = [
-                self.model,
-                self.loss_function,
-                self.train_loader,
-                self.device,
-            ]
-            self.optimizer.step()
-            self.optimizer.zero_grad()
-            self.loss = forward_backward(*train_args)
-
-        crashed = (
-            not torch.isfinite(self.loss).any()
-            or not torch.isfinite(
-                torch.nn.utils.parameters_to_vector(self.model.parameters())
-            ).any()
-        )
-        self.loss = self.loss.numpy().item()
-
-        if crashed:
-            self._done = True
-            return (
-                self.get_state(self),
-                self.crash_penalty,
-                False,
-                True,
-                info,
-            )
-
-        self._done = truncated
-
-        if (
-            self.n_steps % len(self.train_loader) == 0 or self._done
-        ):  # Calculate validation loss at the end of an epoch
-            batch_percentage = 1.0
-        else:
-            batch_percentage = 0.1
-
-        val_args = [
-            self.model,
-            self.loss_function,
-            self.validation_loader,
-            self.batch_size,
-            batch_percentage,
-            self.device,
-        ]
-        validation_loss, validation_accuracy = test(*val_args)
-
-        self.validation_loss = validation_loss.mean().detach().numpy()
-        self.validation_accuracy = validation_accuracy.mean().detach().numpy()
-        if (
-            self.min_validation_loss is None
-            or self.validation_loss <= self.min_validation_loss
-        ):
-            self.min_validation_loss = self.validation_loss
-
-        if self._done:
-            val_args = [
-                self.model,
-                self.loss_function,
-                self.test_loader,
-                self.batch_size,
-                1.0,
-                self.device,
-            ]
-            self.test_losses, self.test_accuracies = test(*val_args)
-
-        reward = self.get_reward(self)
-
-        return self.get_state(self), reward, False, truncated, info
 
     def reset(self, seed=None, options=None):
         """Initialize the neural network, data loaders, etc. for given/random next task.
@@ -255,11 +135,12 @@ class CustomSGDEnv(AbstractMADACEnv):
                 self.crash_penalty,
             ) = sgd_utils.random_instance(rng, self.datasets)
         elif self.torchub_model[0]:
-            self.model = torch.hub.load(
+            hub_model = torch.hub.load(
                 self.torchub_model[0],
                 self.torchub_model[1],
                 pretrained=self.torchub_model[2],
             )
+            self.model = torch.nn.Sequential(hub_model, torch.nn.Softmax(dim=0))
         else:
             # Load model from config file
             self.model = sgd_utils.create_model(
@@ -267,18 +148,19 @@ class CustomSGDEnv(AbstractMADACEnv):
             )
 
         self.learning_rate = None
-        #self.optimizer_type = torch.optim.AdamW
+        self.optimizer_type = torch.optim.AdamW
         self.info = {}
         self._done = False
 
         self.model.to(self.device)
+        # custom optimizer initialization
         if self.optimizer_params is not None:
             self.optimizer: torch.optim.Optimizer = self.optimizer_type(
             **self.optimizer_params, params=self.model.parameters()
             )
         else:
             self.optimizer: torch.optim.Optimizer = self.optimizer_type(params=self.model.parameters())
-
+        ###
         self.loss = 0
         self.test_losses = None
 
@@ -290,58 +172,3 @@ class CustomSGDEnv(AbstractMADACEnv):
             self.average_loss = 0
 
         return self.get_state(self), {}
-
-    def get_default_reward(self, _) -> float:
-        """The default reward function.
-
-        Args:
-            _ (_type_): Empty parameter, which can be used when overriding
-
-        Returns:
-            float: The calculated reward
-        """
-        if self.test_losses is not None:
-            reward = self.test_losses.sum().item() / len(self.test_loader.dataset)
-        else:
-            reward = 0.0
-        return -reward
-
-    def get_default_state(self, _) -> dict:
-        """Default state function.
-
-        Args:
-            _ (_type_): Empty parameter, which can be used when overriding
-
-        Returns:
-            dict: The current state
-        """
-        state = {
-            "step": self.c_step,
-            "loss": self.loss,
-            "validation_loss": self.validation_loss,
-            "validation_accuracy": self.validation_accuracy,
-            "done": self._done,
-        }
-        if self.epoch_mode:
-            state["average_loss"] = self.average_loss
-
-        if self._done and self.test_losses is not None:
-            state["test_losses"] = self.test_losses
-            state["test_accuracies"] = self.test_accuracies
-        return state
-
-    def render(self, mode="human"):
-        """Render progress."""
-        if mode == "human":
-            epoch = 1 + self.c_step // len(self.train_loader)
-            epoch_cutoff = self.n_steps // len(self.train_loader)
-            batch = 1 + self.c_step % len(self.train_loader)
-            print(
-                f"prev_lr {self.optimizer.param_groups[0]['lr'] if self.n_steps > 0 else None}, "  # noqa: E501
-                f"epoch {epoch}/{epoch_cutoff}, "
-                f"batch {batch}/{len(self.train_loader)}, "
-                f"batch_loss {self.loss}, "
-                f"val_loss {self.validation_loss}"
-            )
-        else:
-            raise NotImplementedError

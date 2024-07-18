@@ -14,7 +14,7 @@ from dacbench.abstract_benchmark import objdict
 
 cfg = objdict()
 cfg["epoch_mode"] =  True
-cfg["cutoff"] = 5
+cfg["cutoff"] = 7
 cfg["dataset_name"] = 'CIFAR10'
 cfg["torch_hub_model"] = ("chenyaofo/pytorch-cifar-models", "cifar10_resnet20", False)
 

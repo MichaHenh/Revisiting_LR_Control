@@ -1,16 +1,7 @@
 defaults:
-  - cluster/local
-
-hydra:
-  run:
-    dir: results/${name}_${dacbench_sgd_config.dataset_name}
-  sweep:
-    dir: results/${name}_${dacbench_sgd_config.dataset_name}
-  job:
-    chdir: true
+  - base
 
 name: Adam_fixed_benchmark
-seeds: [1,2,3,4,5,6,7,8,9,10]
 agent:
   type: StaticAgent
   lr: 0.001
