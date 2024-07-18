@@ -6,6 +6,7 @@ import os
 import signal
 import sys
 from pathlib import Path
+from experiment import run
 
 logger = logging.getLogger(__name__)
 
@@ -59,9 +60,8 @@ class HandleTermination:
         sys.exit(0)
 
 
-def cool_things(cfg):
-    """As the name suggests, this does cool things."""
+def run_experiment(cfg):
     with HandleTermination(os.getcwd()):
-        print(f"Your current config is: {cfg}")
+        run(cfg)
         
 
