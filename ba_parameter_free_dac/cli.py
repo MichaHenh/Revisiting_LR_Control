@@ -7,7 +7,7 @@ import memray
 from codecarbon import track_emissions
 import hydra
 
-from experiment import run
+from ba_parameter_free_dac.experiment import run
 
 @hydra.main(version_base=None, config_path="configs", config_name="cocob_mnist")
 @track_emissions(offline=True, country_iso_code="DEU")
