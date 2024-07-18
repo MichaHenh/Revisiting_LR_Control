@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: Adam_fixed_benchmark
+name: Adam_fixed_fmnist
 agent:
   type: StaticAgent
   lr: 0.001

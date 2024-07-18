@@ -3,9 +3,9 @@ defaults:
 
 hydra:
   run:
-    dir: results/${name}_${dacbench_sgd_config.dataset_name}
+    dir: results/${name}
   sweep:
-    dir: results/${name}_${dacbench_sgd_config.dataset_name}
+    dir: results/${name}
   job:
     chdir: true
 

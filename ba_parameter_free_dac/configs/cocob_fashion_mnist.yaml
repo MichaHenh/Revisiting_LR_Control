@@ -1,12 +1,13 @@
 defaults:
   - base
 
-name: COCOB_benchmark
+name: COCOB_fmnist
 agent:
   type: StaticAgent
   lr: 1
 num_episodes: 1
 optimizer_type: COCOB_trackable
+track_effective_lr: true
 
 dacbench_sgd_config:
   optimizer_params: null

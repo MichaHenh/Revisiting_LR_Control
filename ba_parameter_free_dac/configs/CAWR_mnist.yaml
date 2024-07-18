@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: CAWR_benchmark
+name: CAWR_mnist
 agent:
   type: CosineAnnealingWRAgent
   T_0: 10
