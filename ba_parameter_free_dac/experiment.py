@@ -42,8 +42,10 @@ def transform_to_objdict(config):
 def setup_env(seed, cfg):
 
     # Get benchmark env
+    sgd_config = transform_to_objdict(cfg.dacbench_sgd_config)
+    sgd_config['seed'] = seed
     bench = CustomSGDBenchmark(optimizer_type=get_optimizer_type(cfg.optimizer_type),
-                               config=transform_to_objdict(cfg.dacbench_sgd_config))
+                               config=sgd_config)
     
     env = bench.get_environment()
     

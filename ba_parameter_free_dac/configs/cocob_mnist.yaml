@@ -10,5 +10,5 @@ optimizer_type: COCOB_trackable
 
 dacbench_sgd_config:
   optimizer_params: null
-  cutoff: 2
+  cutoff: 1
   dataset_name: MNIST

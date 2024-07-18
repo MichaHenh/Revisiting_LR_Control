@@ -1,5 +1,5 @@
 defaults:
-  - cluster/cpu
+  - cluster/local
 
 hydra:
   run:
