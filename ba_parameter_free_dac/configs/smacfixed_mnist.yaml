@@ -14,6 +14,7 @@ smac:
   dacbench_sgd_config:
     cutoff: 1
     dataset_name: MNIST
+    instance_set_path: ../../../../../instance_sets/sgd/sgd_train_100instances.csv
 
 dacbench_sgd_config:
   cutoff: 30
