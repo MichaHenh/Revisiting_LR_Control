@@ -32,7 +32,7 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
         self.training_losses.append(self.loss)
         if(self.average_loss): self.avg_training_losses.append(self.average_loss)
 
-        if self.n_steps % len(self.train_loader) == 0 or self._done:
+        if self.epoch_mode or self.n_steps % len(self.train_loader) == 0 or self._done:
             self.val_losses.append(self.validation_loss.item())
             self.val_accuracies.append(self.validation_accuracy.item())
             

@@ -10,6 +10,8 @@ from dacbench_custom.custom_sgd_benchmark import CustomSGDBenchmark
 from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
 from dacbench_custom.cosine_annealing_agent import CosineAnnealingWRAgent
 from dacbench.abstract_benchmark import objdict
+from dacbench_custom.smac_agent import SMACAgent
+from ConfigSpace import Configuration, ConfigurationSpace, Float
 
 def get_optimizer_type(optimizer_type_name):
     match optimizer_type_name:
@@ -60,8 +62,33 @@ def setup_env(seed, cfg):
     
     return env, logger
 
-def run(cfg):
-#    for seed in cfg.seeds:
-    env, logger = setup_env(cfg.seed, cfg)
 
-    run_benchmark(env, get_agent(cfg.agent, env), num_episodes=cfg.num_episodes, logger=logger)
+def run_smac(cfg, seed):
+    sgd_config = transform_to_objdict(cfg.dacbench_sgd_config)
+    sgd_config['seed'] = seed
+
+    bench = CustomSGDBenchmark(optimizer_type=get_optimizer_type(cfg.optimizer_type),
+                               config=sgd_config)
+    
+    env = bench.get_environment()
+
+    cs = ConfigurationSpace(seed=seed)
+    lr = Float("lr", (cfg.lr_min, cfg.lr_max), default=cfg.lr_default)
+    cs.add_hyperparameters([lr])
+
+    agent = SMACAgent(env, configspace=cs, n_trials=cfg.n_trials)
+
+    run_benchmark(env, agent, num_episodes=cfg.n_trials)
+
+    return agent.current_info.config["lr"]
+
+    
+
+
+def run(cfg):
+    if "smac" in cfg:
+        incumbent = run_smac(cfg.smac, cfg.seed)
+        env, logger = setup_env(cfg.seed, cfg)
+        run_benchmark(env, StaticAgent(env, [incumbent]), num_episodes=cfg.num_episodes, logger=logger)
+    else:
+        run_benchmark(env, get_agent(cfg.agent, env), num_episodes=cfg.num_episodes, logger=logger)
