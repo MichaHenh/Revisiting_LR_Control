@@ -1,0 +1,14 @@
+defaults:
+  - base
+
+name: Adam_fixed_mnist
+agent:
+  type: StaticAgent
+  lr: 0.001
+num_episodes: 1
+optimizer_type: adam
+smac: 
+
+dacbench_sgd_config:
+  cutoff: 30
+  dataset_name: MNIST
