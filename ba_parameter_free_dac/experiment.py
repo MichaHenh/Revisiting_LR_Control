@@ -91,4 +91,5 @@ def run(cfg):
         env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, StaticAgent(env, [incumbent]), num_episodes=cfg.num_episodes, logger=logger)
     else:
+        env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, get_agent(cfg.agent, env), num_episodes=cfg.num_episodes, logger=logger)

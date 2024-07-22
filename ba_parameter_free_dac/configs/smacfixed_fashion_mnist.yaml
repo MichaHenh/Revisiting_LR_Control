@@ -1,0 +1,21 @@
+defaults:
+  - base
+
+name: SMAC_fixed
+optimizer_type: adam
+num_episodes: 1
+
+smac:
+  optimizer_type: adam
+  n_trials: 50
+  lr_min: 0
+  lr_max: 0.01
+  lr_default: 0.001
+  dacbench_sgd_config:
+    cutoff: 1
+    dataset_name: FashionMNIST
+    instance_set_path: ../../../../../instance_sets/sgd/sgd_train_100instances.csv
+
+dacbench_sgd_config:
+  cutoff: 30
+  dataset_name: FashionMNIST
