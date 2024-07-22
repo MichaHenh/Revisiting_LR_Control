@@ -6,7 +6,7 @@ agent:
   type: CosineAnnealingWRAgent
   T_0: 10
   eta_min: 0
-  base_lr: 0.05
+  base_lr: 0.005
   t_mult: 2
 num_episodes: 1
 optimizer_type: adam
