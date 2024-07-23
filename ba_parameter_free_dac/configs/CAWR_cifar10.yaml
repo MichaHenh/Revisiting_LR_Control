@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: CAWR_fmnist
+name: CAWR_cifar10
 agent:
   type: CosineAnnealingWRAgent
   T_0: 10
