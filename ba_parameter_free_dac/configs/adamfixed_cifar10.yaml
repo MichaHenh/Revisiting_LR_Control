@@ -1,0 +1,14 @@
+defaults:
+  - base
+
+name: Adam_fixed_cifar10
+agent:
+  type: StaticAgent
+  lr: 0.001
+num_episodes: 1
+optimizer_type: adam
+
+dacbench_sgd_config:
+  cutoff: 30
+  dataset_name: CIFAR10
+  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
