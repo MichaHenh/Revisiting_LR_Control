@@ -6,14 +6,14 @@ agent:
   type: CosineAnnealingWRAgent
   T_0: 10
   eta_min: 0
-  base_lr: 0.05
+  base_lr: 0.005
   t_mult: 2
 num_episodes: 1
 optimizer_type: adam
 
 hydra:
   launcher:
-    timeout_min: 960
+    timeout_min: 1200
 
 dacbench_sgd_config:
   epoch_mode: False # in SGDWR paper lr is adapted every mini batch 
