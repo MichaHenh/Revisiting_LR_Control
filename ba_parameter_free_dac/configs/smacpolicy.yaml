@@ -1,8 +1,10 @@
 defaults:
   - _self_
   - cluster/hpc
+  - cluster/local
   - override hydra/sweeper: SMAC
 
+name: SMAC_policy
 seed: 42
 
 dacbench_sgd_config:
@@ -11,7 +13,7 @@ dacbench_sgd_config:
     epoch_mode: True
     num_episodes: 1
     dataset_name: MNIST
-    instance_set_path: ../../../../instance_sets/sgd/sgd_train_100instances.csv
+    instance_set_path: ../../instance_sets/sgd/sgd_train_100instances.csv
 
 hydra:
   sweeper:
@@ -20,7 +22,7 @@ hydra:
       seed: ${seed}
       n_trials: 500
       deterministic: true
-      n_workers: 4
+      n_workers: 32
     smac_kwargs:
       dask_client:
         _target_: dask.distributed.Client
@@ -182,6 +184,8 @@ hydra:
     dir: results/smacpolicy
   sweep:
     dir: results/smacpolicy
+  job:
+    chdir: true
 
 x0: 0.0025
 x1: 0.0025

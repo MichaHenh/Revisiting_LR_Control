@@ -7,7 +7,7 @@ hydra:
     name: ${name}
     partition: ai
     nodes: 1
-    cpus_per_task: 32
+    cpus_per_task: 40
     gres: null
     timeout_min: 1200
-    mem_gb: 512
+    mem_gb: 140
