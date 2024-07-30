@@ -1,0 +1,29 @@
+defaults:
+  - base
+  - override hydra/sweeper: SMAC
+
+name: SMAC_policy_mnist
+optimizer_type: adam
+num_episodes: 1
+
+
+
+
+smac_policy:
+  policy_length: 30
+  trials_train_limit: 100
+  deterministic: True
+  result_dir: smac_output
+  overwrite: True
+  lr_min: 0
+  lr_max: 0.005
+  dacbench_sgd_config:
+    cutoff: 30
+    epoch_mode: True
+    num_episodes: 1
+    dataset_name: MNIST
+    instance_set_path: ../../../../../instance_sets/sgd/sgd_train_100instances.csv
+
+dacbench_sgd_config:
+  cutoff: 30
+  dataset_name: MNIST

@@ -1,0 +1,10 @@
+# @package _global_
+cluster:
+  _target_: dask_jobqueue.SLURMCluster
+  queue: cpu_short
+  #  account: myaccount
+  cores: 1
+  memory: 16 GB
+  walltime: 08:00:00
+  processes: 1
+  log_directory: tmp/smac_dask_slurm

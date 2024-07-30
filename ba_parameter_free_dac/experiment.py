@@ -11,7 +11,9 @@ from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
 from dacbench_custom.cosine_annealing_agent import CosineAnnealingWRAgent
 from dacbench.abstract_benchmark import objdict
 from dacbench_custom.smac_agent import SMACAgent
+from dacbench_custom.policy_agent import PolicyAgent
 from ConfigSpace import Configuration, ConfigurationSpace, Float
+from smac_policy import train_smac_policy
 
 def get_optimizer_type(optimizer_type_name):
     match optimizer_type_name:
@@ -90,6 +92,10 @@ def run(cfg):
         incumbent = run_smac(cfg.smac, cfg.seed)
         env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, StaticAgent(env, [incumbent]), num_episodes=cfg.num_episodes, logger=logger)
+    elif "smac_policy" in cfg:
+        policy = train_smac_policy(transform_to_objdict(cfg['smac_policy']))
+        env, logger = setup_env(cfg.seed, cfg)
+        run_benchmark(env, PolicyAgent(env, policy), num_episodes=cfg.num_episodes, logger=logger)
     else:
         env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, get_agent(cfg.agent, env), num_episodes=cfg.num_episodes, logger=logger)
