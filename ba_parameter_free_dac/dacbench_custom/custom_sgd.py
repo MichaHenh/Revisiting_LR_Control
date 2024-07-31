@@ -74,7 +74,10 @@ def run_epoch(model, loss_function, loader, optimizer, device="cpu"):
     last_loss = None
     running_loss = 0
     model.train()
+    i = 0
     for data, target in loader:
+        i += 1
+        print('epoch step {}/{}'.format(i, len(loader)))
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)
@@ -112,12 +115,13 @@ class CustomSGDEnv(SGDEnv):
         in the direction specified by AdamW, and if not done (crashed/cutoff reached),
         performs another forward/backward pass (update only in the next step).
         """
+        print("env step")
         truncated = super().step_()
         info = {}
         if isinstance(action, float):
             action = [action]
         self.optimizer = _optimizer_action(self.optimizer, action, self.use_momentum)
-
+        print('run epoch')
         if self.epoch_mode:
             self.loss, self.average_loss = run_epoch(
                 self.model,

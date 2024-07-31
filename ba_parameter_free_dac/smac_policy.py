@@ -59,7 +59,7 @@ def evaluate_cost(cfg: DictConfig):
     # Not in result cache, run target algorithm
     # sgd_config = transform_to_objdict(cfg.dacbench_sgd_config)
     # sgd_config['seed'] = cfg.seed
-    env = env = CustomSGDBenchmark(AdamW, config=transform_to_objdict(cfg.dacbench_sgd_config)).get_environment()
+    env = CustomSGDBenchmark(AdamW, config=transform_to_objdict(cfg.dacbench_sgd_config)).get_environment()
     policy = PolicyAgent(env, [cfg['x{}'.format(i)] for i in range(len(cfg.hydra.sweeper.search_space.hyperparameters))])
     # env = GLOBAL.env
     
@@ -82,6 +82,7 @@ def evaluate_cost(cfg: DictConfig):
         if initial_loss is None:
             initial_loss = env.loss
         current_loss = env.loss
+        print('env step done')
         policy.train(next_state, reward)
         state = next_state
 
