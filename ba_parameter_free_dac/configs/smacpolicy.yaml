@@ -1,12 +1,10 @@
 defaults:
   - _self_
-  - cluster/hpc
   - cluster/local
   - override hydra/sweeper: SMAC
 
 name: SMAC_policy
 seed: 42
-name: SMAC_policy
 
 dacbench_sgd_config:
     cutoff: 30

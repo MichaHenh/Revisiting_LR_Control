@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#SBATCH --job-name=cocob_benchmark_mnist
+#SBATCH --job-name=SMAC_policy
 #SBATCH --partition=ai
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=32G
-#SBATCH --time=04:00:00
+#SBATCH --cpus-per-task=34
+#SBATCH --mem=128G
+#SBATCH --time=24:00:00
 #SBATCH --mail-user=finn.micha.henheik@stud.uni-hannover.de
 #SBATCH --mail-type=FAIL
 #SBATCH --output %x.out
@@ -15,6 +15,5 @@ module load Miniconda3
 
 conda activate PFDAC
 
-cd ba_parameter_free_dac
-
-python cli.py --config-name=cocob_mnist
+cd ..
+python smac_policy.py --config-name=smacpolicy -m
