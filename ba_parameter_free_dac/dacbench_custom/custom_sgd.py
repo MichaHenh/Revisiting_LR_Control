@@ -220,11 +220,10 @@ class CustomSGDEnv(SGDEnv):
         elif self.torchub_model[0]:
             hub_model = torch.hub.load(
                 # local model loading for offline mode
-                #torch.hub.get_dir() + '/' + 
-                self.torchub_model[0],
+                torch.hub.get_dir() + '/' + self.torchub_model[0],
                 self.torchub_model[1],
                 pretrained=self.torchub_model[2],
-                #source='local'
+                source='local'
             )
             self.model = torch.nn.Sequential(hub_model, torch.nn.LogSoftmax(dim=1))
         else:
