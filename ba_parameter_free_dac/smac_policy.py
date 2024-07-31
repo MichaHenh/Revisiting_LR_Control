@@ -78,6 +78,7 @@ def evaluate_cost(cfg: DictConfig):
     reward = 0
     while not (terminated or truncated):
         action = policy.act(state, reward)
+        print('step {}/{}'.format(env.c_step, env.n_steps))
         next_state, reward, terminated, truncated, _ = env.step(action)
         if initial_loss is None:
             initial_loss = env.loss
