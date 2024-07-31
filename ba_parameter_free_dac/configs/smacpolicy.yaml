@@ -21,7 +21,7 @@ hydra:
       seed: ${seed}
       n_trials: 500
       deterministic: true
-      n_workers: 4
+      n_workers: 72
     smac_kwargs:
       dask_client:
         _target_: dask.distributed.Client

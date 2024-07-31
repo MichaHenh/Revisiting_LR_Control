@@ -3,7 +3,7 @@
 #SBATCH --job-name=SMAC_policy
 #SBATCH --partition=ai
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=74
 #SBATCH --mem=512G
 #SBATCH --time=24:00:00
 #SBATCH --mail-user=finn.micha.henheik@stud.uni-hannover.de
