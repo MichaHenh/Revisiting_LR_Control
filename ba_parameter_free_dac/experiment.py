@@ -32,6 +32,8 @@ def get_agent(agent, env):
             return StaticAgent(env, [agent.lr])
         case "CosineAnnealingWRAgent":
             return CosineAnnealingWRAgent(env, agent.T_0, agent.eta_min, agent.base_lr, agent.t_mult)
+        case "PolicyAgent":
+            return PolicyAgent(env, agent.policy)
         
     return StaticAgent(env [1])
 
@@ -92,10 +94,6 @@ def run(cfg):
         incumbent = run_smac(cfg.smac, cfg.seed)
         env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, StaticAgent(env, [incumbent]), num_episodes=cfg.num_episodes, logger=logger)
-    elif "smac_policy" in cfg:
-        policy = train_smac_policy(transform_to_objdict(cfg['smac_policy']))
-        env, logger = setup_env(cfg.seed, cfg)
-        run_benchmark(env, PolicyAgent(env, policy), num_episodes=cfg.num_episodes, logger=logger)
     else:
         env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, get_agent(cfg.agent, env), num_episodes=cfg.num_episodes, logger=logger)

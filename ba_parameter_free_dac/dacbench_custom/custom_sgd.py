@@ -107,6 +107,8 @@ class CustomSGDEnv(SGDEnv):
         """Init env."""
         super(CustomSGDEnv, self).__init__(config)
         self.optimizer_type = optimizer_type
+        self.use_validation = config['use_validation'] if 'use_validation' in config else True
+        self.use_testing = config['use_testing'] if 'use_testing' in config else True
 
     def step(self, action: float):
         """Update the parameters of the neural network using the given learning rate lr,
@@ -156,44 +158,45 @@ class CustomSGDEnv(SGDEnv):
             )
 
         self._done = truncated
-
-        if (
-            self.n_steps % len(self.train_loader) == 0 or self._done
-        ):  # Calculate validation loss at the end of an epoch
-            batch_percentage = 1.0
-        else:
-            batch_percentage = 0.1 if self.epoch_mode else 0 # dont validate every batch step in batch mode
-
-        if batch_percentage > 0:
-            val_args = [
-            self.model,
-            self.loss_function,
-            self.validation_loader,
-            self.batch_size,
-            batch_percentage,
-            self.device,
-            ]
-            validation_loss, validation_accuracy = test(*val_args)
-
-            self.validation_loss = validation_loss.mean().detach().numpy()
-            self.validation_accuracy = validation_accuracy.mean().detach().numpy()
+        
+        if self.use_validation:
             if (
-                self.min_validation_loss is None
-                or self.validation_loss <= self.min_validation_loss
-            ):
-                self.min_validation_loss = self.validation_loss
+                self.n_steps % len(self.train_loader) == 0 or self._done
+            ):  # Calculate validation loss at the end of an epoch
+                batch_percentage = 1.0
+            else:
+                batch_percentage = 0.1 if self.epoch_mode else 0 # dont validate every batch step in batch mode
 
-
-        if self._done:
-            val_args = [
+            if batch_percentage > 0:
+                val_args = [
                 self.model,
                 self.loss_function,
-                self.test_loader,
+                self.validation_loader,
                 self.batch_size,
-                1.0,
+                batch_percentage,
                 self.device,
-            ]
-            self.test_losses, self.test_accuracies = test(*val_args)
+                ]
+                validation_loss, validation_accuracy = test(*val_args)
+
+                self.validation_loss = validation_loss.mean().detach().numpy()
+                self.validation_accuracy = validation_accuracy.mean().detach().numpy()
+                if (
+                    self.min_validation_loss is None
+                    or self.validation_loss <= self.min_validation_loss
+                ):
+                    self.min_validation_loss = self.validation_loss
+
+        if self.use_testing:
+            if self._done:
+                val_args = [
+                    self.model,
+                    self.loss_function,
+                    self.test_loader,
+                    self.batch_size,
+                    1.0,
+                    self.device,
+                ]
+                self.test_losses, self.test_accuracies = test(*val_args)
 
         reward = self.get_reward(self)
 
