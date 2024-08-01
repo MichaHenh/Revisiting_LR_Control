@@ -13,7 +13,6 @@ from dacbench.abstract_benchmark import objdict
 from dacbench_custom.smac_agent import SMACAgent
 from dacbench_custom.policy_agent import PolicyAgent
 from ConfigSpace import Configuration, ConfigurationSpace, Float
-from smac_policy import train_smac_policy
 
 def get_optimizer_type(optimizer_type_name):
     match optimizer_type_name:
