@@ -9,6 +9,6 @@ num_episodes: 1
 optimizer_type: adam
 
 dacbench_sgd_config:
-  cutoff: 3
+  cutoff: 50
   dataset_name: CIFAR100
   torch_hub_model: ["chenyaofo/pytorch-cifar-models", "cifar100_resnet20", False]
