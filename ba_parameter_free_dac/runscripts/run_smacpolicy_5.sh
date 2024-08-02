@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=SMAC_policy
+#SBATCH --job-name=SMAC_policy_5
 #SBATCH --partition=ai
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=66
@@ -16,4 +16,4 @@ module load Miniconda3
 conda activate PFDAC
 
 cd ..
-python smac_policy.py --config-name=smacpolicy -m
+python smac_policy.py --config-name=smacpolicy seed=5 -m
