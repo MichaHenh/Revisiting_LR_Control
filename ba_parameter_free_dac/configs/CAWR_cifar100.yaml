@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: CAWR_cifar10
+name: CAWR_cifar100
 agent:
   type: CosineAnnealingWRAgent
   T_0: 10
@@ -16,9 +16,7 @@ hydra:
     timeout_min: 1200
 
 dacbench_sgd_config:
-  epoch_mode: False # in SGDWR paper lr is adapted every mini batch
-  use_validation: false
-  use_testing: false
+  epoch_mode: False # in SGDWR paper lr is adapted every mini batch 
   cutoff: 11250 # 50000*0.6*0.8=24000 -> 28800/64 = 375 -> 30 episodes = 30*375=11250
-  dataset_name: CIFAR10
-  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
+  dataset_name: CIFAR100
+  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]

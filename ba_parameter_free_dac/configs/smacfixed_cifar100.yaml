@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: SMAC_fixed_cifar10
+name: SMAC_fixed_cifar100
 optimizer_type: adam
 num_episodes: 1
 
@@ -13,11 +13,11 @@ smac:
   lr_default: 0.001
   dacbench_sgd_config:
     cutoff: 1
-    dataset_name: CIFAR10
+    dataset_name: CIFAR100
     instance_set_path: ../../../../../instance_sets/sgd/sgd_train_100instances.csv
-    torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
+    torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]
 
 dacbench_sgd_config:
-  cutoff: 30
-  dataset_name: CIFAR10
-  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
+  cutoff: 50
+  dataset_name: CIFAR100
+  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]
