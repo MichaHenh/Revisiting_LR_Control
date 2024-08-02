@@ -3,8 +3,8 @@ defaults:
   - cluster/local
   - override hydra/sweeper: SMAC
 
-name: SMAC_policy
 seed: 42
+name: smacpolicy_${seed}
 
 dacbench_sgd_config:
     cutoff: 30
@@ -182,9 +182,9 @@ hydra:
           upper: 0.005
           log: false
   run:
-    dir: results/smacpolicy
+    dir: results/smacpolicy_${seed}
   sweep:
-    dir: results/smacpolicy
+    dir: results/smacpolicy_${seed}
   job:
     chdir: true
 
