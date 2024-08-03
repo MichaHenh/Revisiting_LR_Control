@@ -86,6 +86,53 @@ def run_epoch(model, loss_function, loader, optimizer, device="cpu"):
         running_loss += last_loss.mean().item()
     return last_loss.mean().detach(), running_loss / len(loader)
 
+def run_epoch_stormplus(model, loss_function, loader, optimizer, device="cpu"):
+    """Run a single epoch of training for given `model` with `loss_function` using step and correction step"""
+    last_loss = None
+    running_loss = 0
+
+    model.train()
+
+    # ONLY FOR THE FIRST BATCH: We need to compute the initial estimator d_1, 
+    # which is the first (mini-batch) stochastic gradient g_1. To set the estimator
+    # we need to call compute_step() with the first batch.
+    (data, label) = next(iter(loader))
+    data, label = data.to(device), label.to(device)
+    optimizer.zero_grad()
+    output = model(data)
+    loss = loss_function(output, label)
+    loss.backward()
+    optimizer.compute_estimator(normalized_norm=True)
+
+    for i, (data, label) in enumerate(loader, 0):
+        data, label = data.to(device), label.to(device)
+
+        # main optimization step
+        optimizer.zero_grad()
+        output = model(data)
+        loss = loss_function(output, label)
+        loss.backward()
+
+        # uses \tilde g_t from the backward() call above
+        # uses d_t already saved as parameter group state from previous iteration
+        optimizer.step()
+
+        # update tracked losses
+        last_loss = loss
+        running_loss += last_loss.mean().item()
+
+        # makes the second pass, backpropagation for the NEXT iterate using the current data batch
+        optimizer.zero_grad()
+        output = model(data)
+        loss = loss_function(output, label)
+        loss.backward()
+
+        # updates estimate d_{t+1} for the next iteration, saves g_{t+1} for next iteration
+        optimizer.compute_estimator(normalized_norm=True)
+
+    return last_loss.mean().detach(), running_loss / len(loader)
+
+
 class CustomSGDEnv(SGDEnv):
     """The SGD DAC Environment implements the problem of dynamically configuring
     the learning rate hyperparameter of a neural network optimizer
@@ -109,6 +156,7 @@ class CustomSGDEnv(SGDEnv):
         self.optimizer_type = optimizer_type
         self.use_validation = config['use_validation'] if 'use_validation' in config else True
         self.use_testing = config['use_testing'] if 'use_testing' in config else True
+        self.use_run_epoch_stormplus = config['use_run_epoch_stormplus'] if 'use_run_epoch_stormplus' in config else False
 
     def step(self, action: float):
         """Update the parameters of the neural network using the given learning rate lr,
@@ -121,7 +169,7 @@ class CustomSGDEnv(SGDEnv):
             action = [action]
         self.optimizer = _optimizer_action(self.optimizer, action, self.use_momentum)
         if self.epoch_mode:
-            self.loss, self.average_loss = run_epoch(
+            self.loss, self.average_loss = (run_epoch_stormplus if self.use_run_epoch_stormplus else run_epoch)(
                 self.model,
                 self.loss_function,
                 self.train_loader,

@@ -1,0 +1,16 @@
+defaults:
+  - base
+
+name: STORMplus_cifar100
+agent:
+  type: StaticAgent
+  lr: 1
+num_episodes: 1
+optimizer_type: stormplus
+
+dacbench_sgd_config:
+  optimizer_params: null
+  use_run_epoch_stormplus: true
+  cutoff: 50
+  dataset_name: CIFAR100
+  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]

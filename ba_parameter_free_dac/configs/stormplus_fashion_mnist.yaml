@@ -1,0 +1,15 @@
+defaults:
+  - base
+
+name: STORMplus_fashion_mnist
+agent:
+  type: StaticAgent
+  lr: 1
+num_episodes: 1
+optimizer_type: stormplus
+
+dacbench_sgd_config:
+  optimizer_params: null
+  use_run_epoch_stormplus: true
+  cutoff: 30
+  dataset_name: FashionMNIST
