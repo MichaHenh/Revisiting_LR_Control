@@ -101,17 +101,17 @@ def run_epoch_stormplus(model, loss_function, loader, optimizer, device="cpu"):
     optimizer.zero_grad()
     output = model(data)
     loss = loss_function(output, label)
-    loss.backward()
+    loss.mean().backward()
     optimizer.compute_estimator(normalized_norm=True)
 
-    for i, (data, label) in enumerate(loader, 0):
+    for data, label in loader:
         data, label = data.to(device), label.to(device)
 
         # main optimization step
         optimizer.zero_grad()
         output = model(data)
         loss = loss_function(output, label)
-        loss.backward()
+        loss.mean().backward()
 
         # uses \tilde g_t from the backward() call above
         # uses d_t already saved as parameter group state from previous iteration
@@ -125,7 +125,7 @@ def run_epoch_stormplus(model, loss_function, loader, optimizer, device="cpu"):
         optimizer.zero_grad()
         output = model(data)
         loss = loss_function(output, label)
-        loss.backward()
+        loss.mean().backward()
 
         # updates estimate d_{t+1} for the next iteration, saves g_{t+1} for next iteration
         optimizer.compute_estimator(normalized_norm=True)

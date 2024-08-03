@@ -9,7 +9,7 @@ class STORMplus(Optimizer):
     >>> Stochastic Recursive Momentum algorithm by [Cutkosy & Orabona, 2019].
     '''
 
-    def __init__(self, params, lr = required, weight_decay = 0., init_accumulator = 1., c = 1.):
+    def __init__(self, params, lr = 1, weight_decay = 0., init_accumulator = 1., c = 1.):
 
         if lr is not required and lr < 0.0:
             raise ValueError('Invalid learning rate: %1.1e'%lr)
