@@ -11,6 +11,6 @@ optimizer_type: stormplus
 dacbench_sgd_config:
   optimizer_params: null
   use_run_epoch_stormplus: true
-  fraction_of_dataset: 1.0
+  fraction_of_dataset: 0.6
   cutoff: 30
-  dataset_name: MNIST
+  dataset_name: FashionMNIST

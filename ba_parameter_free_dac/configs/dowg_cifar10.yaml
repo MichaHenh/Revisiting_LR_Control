@@ -10,6 +10,6 @@ optimizer_type: dowg
 
 dacbench_sgd_config:
   optimizer_params: null
-  cutoff: 10
+  cutoff: 30
   dataset_name: CIFAR10
   torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
