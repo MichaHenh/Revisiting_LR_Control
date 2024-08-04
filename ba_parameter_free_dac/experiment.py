@@ -6,6 +6,7 @@ from pathlib import Path
 from parameterfree import COCOB
 from parameterfree.cocob_trackable_optimizer import COCOBTrackable
 from parameterfree.STORMplus import STORMplus
+from parameterfree.DoWG import DoWG
 from torch.optim import AdamW
 from dacbench_custom.custom_sgd_benchmark import CustomSGDBenchmark
 from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
@@ -23,6 +24,8 @@ def get_optimizer_type(optimizer_type_name):
             return COCOBTrackable
         case "stormplus":
             return STORMplus
+        case "dowg":
+            return DoWG
         case "adam":
             return AdamW
         

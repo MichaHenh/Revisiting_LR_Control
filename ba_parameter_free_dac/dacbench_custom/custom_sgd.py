@@ -97,15 +97,15 @@ def run_epoch_stormplus(model, loss_function, loader, optimizer, device="cpu"):
     # which is the first (mini-batch) stochastic gradient g_1. To set the estimator
     # we need to call compute_step() with the first batch.
     (data, label) = next(iter(loader))
-    data, label = data.to(device), label.to(device)
+    # data, label = data.to(device), label.to(device)
     optimizer.zero_grad()
     output = model(data)
     loss = loss_function(output, label)
     loss.mean().backward()
     optimizer.compute_estimator(normalized_norm=True)
 
-    for data, label in loader:
-        data, label = data.to(device), label.to(device)
+    for _, (data, label) in enumerate(loader, 0):
+        # data, label = data.to(device), label.to(device)
 
         # main optimization step
         optimizer.zero_grad()
