@@ -1,0 +1,14 @@
+defaults:
+  - base
+
+name: DoWG_cifar10
+agent:
+  type: StaticAgent
+  lr: 1
+num_episodes: 1
+optimizer_type: dowg
+
+dacbench_sgd_config:
+  optimizer_params: null
+  cutoff: 30
+  dataset_name: MNIST
