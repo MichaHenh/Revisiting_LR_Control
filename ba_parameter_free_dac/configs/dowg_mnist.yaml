@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: DoWG_cifar10
+name: DoWG_mnist
 agent:
   type: StaticAgent
   lr: 1
