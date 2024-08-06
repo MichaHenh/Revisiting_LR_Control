@@ -152,6 +152,7 @@ class CustomSGDEnv(SGDEnv):
 
     def __init__(self, config, optimizer_type):
         """Init env."""
+        torch.manual_seed(config['seed'])
         super(CustomSGDEnv, self).__init__(config)
         self.optimizer_type = optimizer_type
         self.use_validation = config['use_validation'] if 'use_validation' in config else True
@@ -258,7 +259,6 @@ class CustomSGDEnv(SGDEnv):
         if options is None:
             options = {}
         super().reset_(seed)
-
         # Use generator
         rng = np.random.RandomState(self.initial_seed)
         if self.use_generator:
