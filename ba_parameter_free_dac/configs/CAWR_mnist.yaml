@@ -18,4 +18,5 @@ hydra:
 dacbench_sgd_config:
   epoch_mode: False # in SGDWR paper lr is adapted every mini batch 
   cutoff: 13500 # 60000*0.6*0.8=28800 -> 28800/64 = 450 -> 30 episodes = 30*450=13500
+  fraction_of_dataset: 1.0
   dataset_name: MNIST
