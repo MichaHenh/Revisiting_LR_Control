@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: SMAC_fixed
+name: SMAC_fixed_mnist
 optimizer_type: adam
 num_episodes: 1
 
