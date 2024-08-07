@@ -14,8 +14,10 @@ smac:
   dacbench_sgd_config:
     cutoff: 1
     dataset_name: FashionMNIST
+    fraction_of_dataset: 1.0
     instance_set_path: ../../../../../instance_sets/sgd/sgd_train_100instances.csv
 
 dacbench_sgd_config:
   cutoff: 30
+  fraction_of_dataset: 1.0
   dataset_name: FashionMNIST
