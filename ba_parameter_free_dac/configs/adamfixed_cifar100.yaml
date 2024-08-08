@@ -11,4 +11,5 @@ optimizer_type: adam
 dacbench_sgd_config:
   cutoff: 50
   dataset_name: CIFAR100
+  fraction_of_dataset: 1.0
   torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]

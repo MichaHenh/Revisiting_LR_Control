@@ -14,10 +14,12 @@ smac:
   dacbench_sgd_config:
     cutoff: 1
     dataset_name: CIFAR100
+    fraction_of_dataset: 1.0
     instance_set_path: ../../../../../instance_sets/sgd/sgd_train_100instances.csv
     torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]
 
 dacbench_sgd_config:
   cutoff: 50
   dataset_name: CIFAR100
+  fraction_of_dataset: 1.0
   torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]
