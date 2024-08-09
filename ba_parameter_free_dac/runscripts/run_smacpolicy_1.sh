@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=SMAC_policy_2
+#SBATCH --job-name=SMAC_policy_1
 #SBATCH --partition=ai
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=66
