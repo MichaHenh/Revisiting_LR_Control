@@ -6,7 +6,7 @@ from pathlib import Path
 from parameterfree import COCOB
 from parameterfree.cocob_trackable_optimizer import COCOBTrackable
 from parameterfree.STORMplus import STORMplus
-from parameterfree.DoWG import DoWG
+from parameterfree.DoWG import DoWG, CDoWG
 from torch.optim import AdamW
 from dacbench_custom.custom_sgd_benchmark import CustomSGDBenchmark
 from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
@@ -26,6 +26,8 @@ def get_optimizer_type(optimizer_type_name):
             return STORMplus
         case "dowg":
             return DoWG
+        case "cdowg":
+            return CDoWG
         case "adam":
             return AdamW
         
@@ -90,8 +92,6 @@ def run_smac(cfg, seed):
     run_benchmark(env, agent, num_episodes=cfg.n_trials)
 
     return agent.current_info.config["lr"]
-
-    
 
 
 def run(cfg):
