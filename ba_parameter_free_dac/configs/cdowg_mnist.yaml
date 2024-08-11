@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: DoWG_mnist
+name: CDoWG_mnist
 agent:
   type: StaticAgent
   lr: 1
