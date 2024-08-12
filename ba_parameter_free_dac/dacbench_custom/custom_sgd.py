@@ -4,6 +4,7 @@ from __future__ import annotations
 import numpy as np
 import torch
 
+from time import time
 from dacbench.envs import SGDEnv
 from dacbench.envs.env_utils import sgd_utils
 from dacbench.envs.env_utils.sgd_utils import random_torchvision_loader
@@ -184,9 +185,11 @@ class CustomSGDEnv(SGDEnv):
                 self.train_loader,
                 self.device,
             ]
+            # current_time_ms = time()
             self.optimizer.step()
             self.optimizer.zero_grad()
             self.loss = forward_backward(*train_args)
+            
 
         crashed = (
             not torch.isfinite(self.loss).any()
@@ -210,7 +213,7 @@ class CustomSGDEnv(SGDEnv):
         
         if self.use_validation:
             if (
-                self.n_steps % len(self.train_loader) == 0 or self._done
+                (self.c_step % len(self.train_loader) == 0) or self._done
             ):  # Calculate validation loss at the end of an epoch
                 batch_percentage = 1.0
             else:
@@ -225,6 +228,8 @@ class CustomSGDEnv(SGDEnv):
                 batch_percentage,
                 self.device,
                 ]
+                # print("BP: {}".format(batch_percentage))
+                # print("Step: {}".format(time()-current_time_ms))
                 validation_loss, validation_accuracy = test(*val_args)
 
                 self.validation_loss = validation_loss.mean().detach().numpy()

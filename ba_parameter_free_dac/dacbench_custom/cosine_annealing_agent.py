@@ -1,4 +1,5 @@
 import math
+from time import time
 from dacbench.abstract_agent import AbstractDACBenchAgent
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 
@@ -21,6 +22,7 @@ class CosineAnnealingWRAgent(AbstractDACBenchAgent):
 
     def act(self, state=None, reward=None):
         """Returns the next action."""
+        # current_time_ms = time()
         self.epoch += 1
         
         if self.epoch is None and self.last_epoch < 0:
@@ -48,7 +50,7 @@ class CosineAnnealingWRAgent(AbstractDACBenchAgent):
         self.last_epoch = math.floor(self.epoch)
 
         self.current_lr = self.eta_min + (self.base_lr - self.eta_min) * (1 + math.cos(math.pi * self.T_cur / self.T_i)) / 2
-
+        # print("CAWR: {}".format(time()-current_time_ms))
         return self.current_lr
 
     def train(self, state=None, reward=None):  # noqa: D102
