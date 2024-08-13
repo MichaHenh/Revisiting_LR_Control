@@ -33,14 +33,14 @@ def get_optimizer_type(optimizer_type_name):
         
     return AdamW
         
-def get_agent(agent, env):
+def get_agent(agent, env, seed):
     match agent.type:
         case "StaticAgent":
             return StaticAgent(env, [agent.lr])
         case "CosineAnnealingWRAgent":
             return CosineAnnealingWRAgent(env, agent.T_0, agent.eta_min, agent.base_lr, agent.t_mult)
         case "PolicyAgent":
-            return PolicyAgent(env, agent.policy)
+            return PolicyAgent(env, agent['policy_' + seed])
         
     return StaticAgent(env [1])
 
@@ -101,4 +101,4 @@ def run(cfg):
         run_benchmark(env, StaticAgent(env, [incumbent]), num_episodes=cfg.num_episodes, logger=logger)
     else:
         env, logger = setup_env(cfg.seed, cfg)
-        run_benchmark(env, get_agent(cfg.agent, env), num_episodes=cfg.num_episodes, logger=logger)
+        run_benchmark(env, get_agent(cfg.agent, env, cfg.seed), num_episodes=cfg.num_episodes, logger=logger)

@@ -9,7 +9,7 @@ class STORMplus(Optimizer):
     >>> Stochastic Recursive Momentum algorithm by [Cutkosy & Orabona, 2019].
     '''
 
-    def __init__(self, params, lr = 1, weight_decay = 0., init_accumulator = 1., c = 1.):
+    def __init__(self, params, lr = 1, weight_decay = 0., init_accumulator = 1., c = 1., eps=1e-8):
 
         if lr is not required and lr < 0.0:
             raise ValueError('Invalid learning rate: %1.1e'%lr)
@@ -24,6 +24,7 @@ class STORMplus(Optimizer):
         self.c = c
         self.G_t = 0.
         self.D_t = 0.
+        self.eps = eps
         self.estimator_accumulator = init_accumulator
         self.eta_t = 1. / self.estimator_accumulator**(1./3.)
         self.grad_accumulator = init_accumulator
@@ -107,7 +108,7 @@ class STORMplus(Optimizer):
         
         self.grad_accumulator += self.G_t
         self.a_t = self.c / self.grad_accumulator**(2./3.)
-        self.estimator_accumulator += self.D_t / self.a_t
+        self.estimator_accumulator += (self.D_t + self.eps)/ self.a_t
         self.eta_t = 1. / self.estimator_accumulator**(1./3.)
 
         for group in self.param_groups:
