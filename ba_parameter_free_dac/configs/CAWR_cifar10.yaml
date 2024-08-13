@@ -13,8 +13,6 @@ optimizer_type: adam
 
 dacbench_sgd_config:
   epoch_mode: False # in SGDWR paper lr is adapted every mini batch
-  use_validation: false
-  use_testing: false
   cutoff: 20250 # 50000*0.8=40000 -> 40000/64 = 675 -> 30 episodes = 30*675=20250
   dataset_name: CIFAR10
   fraction_of_dataset: 1.0
