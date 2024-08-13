@@ -40,7 +40,7 @@ def get_agent(agent, env, seed):
         case "CosineAnnealingWRAgent":
             return CosineAnnealingWRAgent(env, agent.T_0, agent.eta_min, agent.base_lr, agent.t_mult)
         case "PolicyAgent":
-            return PolicyAgent(env, agent['policy_' + seed])
+            return PolicyAgent(env, agent['policy_{}'.format(seed)])
         
     return StaticAgent(env [1])
 
