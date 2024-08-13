@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: smacpolicy_mnist
+name: smacpolicy_fashion_mnist
 agent:
   type: PolicyAgent
   policy_1: [
