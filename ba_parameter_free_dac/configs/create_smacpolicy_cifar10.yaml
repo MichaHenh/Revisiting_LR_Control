@@ -4,7 +4,7 @@ defaults:
   - override hydra/sweeper: SMAC
 
 seed: 42
-name: smacpolicy_${seed}
+name: smacpolicy_cifar10_${seed}
 
 dacbench_sgd_config:
     cutoff: 30
