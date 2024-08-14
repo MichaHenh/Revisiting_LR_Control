@@ -15,6 +15,7 @@ dacbench_sgd_config:
     num_episodes: 1
     dataset_name: CIFAR10
     fraction_of_dataset: 1.0
+    torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
     instance_set_path: ../../instance_sets/sgd/sgd_train_100instances.csv
 
 hydra:
