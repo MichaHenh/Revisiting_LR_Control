@@ -15,5 +15,5 @@ module load Miniconda3
 
 conda activate PFDAC
 
-cd ..
+cd ../..
 python smac_policy.py --config-name=create_smacpolicy_cifar10 seed=1 -m
