@@ -37,6 +37,7 @@ class Globals:
 @hydra.main(version_base=None, config_path="configs", config_name="smacpolicy")
 def evaluate_cost(cfg: DictConfig):
     print(cfg.seed)
+    print(cfg.dacbench_sgd_config.seed)
     # setup(cfg)
     # global GLOBAL
 
