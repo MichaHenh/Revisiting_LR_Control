@@ -11,6 +11,10 @@ agent:
 num_episodes: 1
 optimizer_type: adam
 
+hydra:
+  launcher:
+    timeout_min: 600
+
 dacbench_sgd_config:
   epoch_mode: False # in SGDWR paper lr is adapted every mini batch 
   cutoff: 33750 # 50000*0.8=40000 -> 40000/64 = 675 -> 50 episodes = 50*675=33750
