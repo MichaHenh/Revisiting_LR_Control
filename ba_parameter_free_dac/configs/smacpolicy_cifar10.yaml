@@ -4,7 +4,7 @@ defaults:
 name: smacpolicy_cifar10_new
 agent:
   type: PolicyAgent
-  policy_0: [
+  policy_10: [
     0.001529885706290909,  // x0
     0.002794182531201569,  // x1
     0.004804014239871173,  // x2
