@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: smacpolicy_cifar10
+name: smacpolicy_cifar10_new
 agent:
   type: PolicyAgent
   policy_0: [
