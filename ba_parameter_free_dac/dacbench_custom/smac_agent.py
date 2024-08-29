@@ -30,14 +30,16 @@ class SMACAgent(AbstractDACBenchAgent):
             overwrite=True,  # Overrides any previous results that are found that are inconsistent with the meta-data
             )
         
-        
+        self.is_episode_beginning = True        
 
         super().__init__(env)
 
     def act(self, state=None, reward=None):
         """Returns the next action."""
-        self.current_info = self.smac.ask()
-        assert self.current_info.seed is not None
+        if self.is_episode_beginning:
+            self.current_info = self.smac.ask()
+            assert self.current_info.seed is not None
+            self.is_episode_beginning = False
 
         return self.current_info.config["lr"]
 
@@ -47,3 +49,4 @@ class SMACAgent(AbstractDACBenchAgent):
     def end_episode(self, state=None, reward=None):  # noqa: D102
         value = TrialValue(cost=-reward, time=0.5)
         self.smac.tell(self.current_info, value=value)
+        self.is_episode_beginning = True
