@@ -7,6 +7,7 @@ agent:
   lr: 1
 num_episodes: 1
 optimizer_type: dowg
+track_effective_lr: true
 
 dacbench_sgd_config:
   optimizer_params: null
