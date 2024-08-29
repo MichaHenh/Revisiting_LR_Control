@@ -11,12 +11,13 @@ class DoWG(Optimizer):
     
     Args:
         eps (float, optional): term added to the denominator to improve
-            numerical stability (default: 1e-4). Also used as the default squared distance estimate.
+            numerical stability (default: 1e-8). Also used as the default squared distance estimate.
     """
 
     def __init__(self, params, eps=1e-8):
         defaults = dict(eps=eps)
         self.eps = eps
+        self.avg_effective_lr = None
         super(DoWG, self).__init__(params, defaults)
 
     def step(self):
@@ -46,11 +47,12 @@ class DoWG(Optimizer):
             state['rt2'] = torch.max(state['rt2'], curr_d2)
             state['vt'] += (state['rt2'] * grad_sq_norm)
             rt2, vt = state['rt2'], state['vt']
-            
+
             for group in self.param_groups:
+                denom = torch.sqrt(vt).add_(group['eps'])
+                self.avg_effective_lr = torch.div(rt2, denom)
                 for p in group['params']:
                     gt_hat = rt2 * p.grad.data
-                    denom = torch.sqrt(vt).add_(group['eps'])
                     p.data.addcdiv_(gt_hat, denom, value=-1.0)
         return None
 
