@@ -158,6 +158,7 @@ class CustomSGDEnv(SGDEnv):
         self.optimizer_type = optimizer_type
         self.use_validation = config['use_validation'] if 'use_validation' in config else True
         self.use_testing = config['use_testing'] if 'use_testing' in config else True
+        self.use_validation_as_test = config['use_validation_as_test'] if 'use_validation_as_test' in config else False
         self.use_run_epoch_stormplus = config['use_run_epoch_stormplus'] if 'use_run_epoch_stormplus' in config else False
 
     def step(self, action: float):
@@ -240,17 +241,19 @@ class CustomSGDEnv(SGDEnv):
                 ):
                     self.min_validation_loss = self.validation_loss
 
-        if self.use_testing:
+        if self.use_testing or self.use_validation_as_test:
             if self._done:
                 val_args = [
                     self.model,
                     self.loss_function,
-                    self.test_loader,
+                    self.test_loader if not self.use_validation_as_test else self.validation_loader,
                     self.batch_size,
                     1.0,
                     self.device,
                 ]
                 self.test_losses, self.test_accuracies = test(*val_args)
+
+        
 
         reward = self.get_reward(self)
 

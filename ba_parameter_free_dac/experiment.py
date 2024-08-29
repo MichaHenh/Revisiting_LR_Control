@@ -91,7 +91,9 @@ def run_smac(cfg, seed):
 
     run_benchmark(env, agent, num_episodes=cfg.n_trials)
 
-    return agent.current_info.config["lr"]
+    incumbent = agent.smac.optimize()
+    print("Incumbent reached: {}".format(incumbent))
+    return incumbent["lr"]
 
 
 def run(cfg):
