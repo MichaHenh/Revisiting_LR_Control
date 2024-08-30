@@ -4,18 +4,17 @@ defaults:
   - override hydra/sweeper: SMAC
 
 seed: 42
-name: smacpolicy_50_${seed}
+name: smacpolicy_fashion_mnist_${seed}
 
 dacbench_sgd_config:
-    cutoff: 50
+    cutoff: 30
     seed: ${seed}
     epoch_mode: true
     use_validation: false
     use_testing: false
     num_episodes: 1
-    dataset_name: MNIST
+    dataset_name: FashionMNIST
     fraction_of_dataset: 1.0
-    torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]
     instance_set_path: ../../instance_sets/sgd/sgd_train_100instances.csv
 
 hydra:
@@ -183,110 +182,10 @@ hydra:
           lower: 0
           upper: 0.005
           log: false
-        x30:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x31:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x32:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x33:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x34:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x35:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x36:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x37:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x38:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x39:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x40:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x41:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x42:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x43:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x44:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x45:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x46:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x47:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x48:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
-        x49:
-          type: uniform_float
-          lower: 0
-          upper: 0.005
-          log: false
   run:
-    dir: results/smacpolicy_50_${seed}
+    dir: results/smacpolicy_fashion_mnist_${seed}
   sweep:
-    dir: results/smacpolicy_50_${seed}
+    dir: results/smacpolicy_fashion_mnist_${seed}
   job:
     chdir: true
 
@@ -320,23 +219,3 @@ x26: 0.0025
 x27: 0.0025
 x28: 0.0025
 x29: 0.0025
-x30: 0.0025
-x31: 0.0025
-x32: 0.0025
-x33: 0.0025
-x34: 0.0025
-x35: 0.0025
-x36: 0.0025
-x37: 0.0025
-x38: 0.0025
-x39: 0.0025
-x40: 0.0025
-x41: 0.0025
-x42: 0.0025
-x43: 0.0025
-x44: 0.0025
-x45: 0.0025
-x46: 0.0025
-x47: 0.0025
-x48: 0.0025
-x49: 0.0025
