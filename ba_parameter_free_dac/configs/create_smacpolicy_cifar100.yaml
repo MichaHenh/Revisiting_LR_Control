@@ -15,7 +15,6 @@ dacbench_sgd_config:
     num_episodes: 1
     dataset_name: MNIST
     fraction_of_dataset: 1.0
-    torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]
     instance_set_path: ../../instance_sets/sgd/sgd_train_100instances.csv
 
 hydra:
@@ -25,7 +24,7 @@ hydra:
       seed: ${seed}
       n_trials: 500
       deterministic: true
-      n_workers: 64
+      n_workers: 1
     smac_kwargs:
       dask_client:
         _target_: dask.distributed.Client
