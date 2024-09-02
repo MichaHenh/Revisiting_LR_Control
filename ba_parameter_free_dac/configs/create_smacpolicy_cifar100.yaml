@@ -4,7 +4,7 @@ defaults:
   - override hydra/sweeper: SMAC
 
 seed: 42
-name: smacpolicy_50_${seed}
+name: smacpolicy_cifar100_${seed}
 
 dacbench_sgd_config:
     cutoff: 50
@@ -284,9 +284,9 @@ hydra:
           upper: 0.005
           log: false
   run:
-    dir: results/smacpolicy_50_${seed}
+    dir: results/smacpolicy_cifar100_${seed}
   sweep:
-    dir: results/smacpolicy_50_${seed}
+    dir: results/smacpolicy_cifar100_${seed}
   job:
     chdir: true
 
