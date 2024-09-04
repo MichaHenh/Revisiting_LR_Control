@@ -2,7 +2,17 @@ from dacbench.wrappers import PerformanceTrackingWrapper
 from time import time
 
 class CustomTrackingWrapper(PerformanceTrackingWrapper):
-
+    r"""Custom PerformanceTrackingWrapper tracking more metrics, including:
+        - actions
+        - step_times
+        - training_losses
+        - avg_training_losses
+        - validation_losses
+        - validation_accuracies
+        - test_loss
+        - test_accuracy
+        - effective_lrs
+    """
     def __init__(self, env, performance_interval=None, track_instance_performance=True, track_effective_lr=False, logger=None):
         super().__init__(env, performance_interval, track_instance_performance, logger)
         self.track_effective_lr = track_effective_lr
@@ -18,9 +28,7 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
         self.last_step_start = None
         self.average_loss = None
 
-    def step(self, action):
-        print("step")
-        
+    def step(self, action):    
         current_time_ms = round(time()*1000)
         if self.last_step_start is not None:
             self.step_times.append(current_time_ms - self.last_step_start)

@@ -1,15 +1,11 @@
-import math
-from dacbench.abstract_agent import AbstractDACBenchAgent
-from smac import Scenario
-from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
-from ConfigSpace import Configuration, ConfigurationSpace, Float
-from smac import HyperparameterOptimizationFacade as HPOFacade
-from smac import Scenario
-from smac.runhistory.dataclasses import TrialValue
 from dacbench.abstract_agent import AbstractDACBenchAgent
 
 class PolicyAgent(AbstractDACBenchAgent):
-    """Agent representing a Policy"""
+    r"""Agent representing a Policy. Every time act is called, we take one step in policy.
+    Args:
+        env: DACBench environment
+        policy: array of policy values
+    """
 
     def __init__(self, env, policy):
         self.policy = policy

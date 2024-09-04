@@ -1,4 +1,4 @@
-"""Custom SGD environment."""
+"""Custom SGD environment with customizable optimizer_type. Class is adapted from dacbench.envs.SGDEnv"""
 from __future__ import annotations
 
 import numpy as np
@@ -7,7 +7,6 @@ import torch
 from time import time
 from dacbench.envs import SGDEnv
 from dacbench.envs.env_utils import sgd_utils
-from dacbench.envs.env_utils.sgd_utils import random_torchvision_loader
 
 def _optimizer_action(
     optimizer: torch.optim.Optimizer, action: float, use_momentum: bool
@@ -88,7 +87,8 @@ def run_epoch(model, loss_function, loader, optimizer, device="cpu"):
     return last_loss.mean().detach(), running_loss / len(loader)
 
 def run_epoch_stormplus(model, loss_function, loader, optimizer, device="cpu"):
-    """Run a single epoch of training for given `model` with `loss_function` using step and correction step"""
+    r"""Run a single stormplus-type epoch of training for given `model` with `loss_function` using step and correction step.
+        This encompasses an estimator step in addition to optimizer steps."""
     last_loss = None
     running_loss = 0
 
@@ -137,7 +137,7 @@ def run_epoch_stormplus(model, loss_function, loader, optimizer, device="cpu"):
 class CustomSGDEnv(SGDEnv):
     """The SGD DAC Environment implements the problem of dynamically configuring
     the learning rate hyperparameter of a neural network optimizer
-    (more specifically, torch.optim.AdamW) for a supervised learning task.
+    (can be specified in as optimizer_type) for a supervised learning task.
     While training, the model is evaluated after every epoch.
 
     Actions correspond to learning rate values in [0,+inf[
@@ -186,7 +186,6 @@ class CustomSGDEnv(SGDEnv):
                 self.train_loader,
                 self.device,
             ]
-            # current_time_ms = time()
             self.optimizer.step()
             self.optimizer.zero_grad()
             self.loss = forward_backward(*train_args)
@@ -212,6 +211,7 @@ class CustomSGDEnv(SGDEnv):
 
         self._done = truncated
         
+        """Option to disable evaluation of validation set"""
         if self.use_validation:
             if (
                 (self.c_step % len(self.train_loader) == 0) or self._done
@@ -229,8 +229,6 @@ class CustomSGDEnv(SGDEnv):
                 batch_percentage,
                 self.device,
                 ]
-                # print("BP: {}".format(batch_percentage))
-                # print("Step: {}".format(time()-current_time_ms))
                 validation_loss, validation_accuracy = test(*val_args)
 
                 self.validation_loss = validation_loss.mean().detach().numpy()
@@ -241,6 +239,7 @@ class CustomSGDEnv(SGDEnv):
                 ):
                     self.min_validation_loss = self.validation_loss
 
+        """Option to disable evaluation of test set and option to use the validation set as test set."""
         if self.use_testing or self.use_validation_as_test:
             if self._done:
                 val_args = [
@@ -252,8 +251,6 @@ class CustomSGDEnv(SGDEnv):
                     self.device,
                 ]
                 self.test_losses, self.test_accuracies = test(*val_args)
-
-        
 
         reward = self.get_reward(self)
 
@@ -292,12 +289,11 @@ class CustomSGDEnv(SGDEnv):
             )
 
         self.learning_rate = None
-        #self.optimizer_type = torch.optim.AdamW
         self.info = {}
         self._done = False
 
         self.model.to(self.device)
-        # custom optimizer initialization
+        """Custom optimizer initialization with or without hyperparameters"""
         if self.optimizer_params is not None:
             self.optimizer: torch.optim.Optimizer = self.optimizer_type(
             **self.optimizer_params, params=self.model.parameters()

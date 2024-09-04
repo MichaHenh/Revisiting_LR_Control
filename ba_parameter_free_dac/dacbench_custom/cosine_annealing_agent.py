@@ -1,10 +1,40 @@
 import math
-from time import time
 from dacbench.abstract_agent import AbstractDACBenchAgent
-from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 
 class CosineAnnealingWRAgent(AbstractDACBenchAgent):
-    """Agent using cosine annea."""
+    r"""Set the learning rate of each parameter group using a cosine annealing
+    schedule, where :math:`\eta_{max}` is set to the initial lr, :math:`T_{cur}`
+    is the number of epochs since the last restart and :math:`T_{i}` is the number
+    of epochs between two warm restarts in SGDR:
+
+    .. math::
+        \eta_t = \eta_{min} + \frac{1}{2}(\eta_{max} - \eta_{min})\left(1 +
+        \cos\left(\frac{T_{cur}}{T_{i}}\pi\right)\right)
+
+    When :math:`T_{cur}=T_{i}`, set :math:`\eta_t = \eta_{min}`.
+    When :math:`T_{cur}=0` after restart, set :math:`\eta_t=\eta_{max}`.
+
+    It has been proposed in
+    `SGDR: Stochastic Gradient Descent with Warm Restarts`_.
+
+    Args:
+        T_0 (int): Number of iterations until the first restart.
+        T_mult (int, optional): A factor by which :math:`T_{i}` increases after a restart. Default: 1.
+        eta_min (float, optional): Minimum learning rate. Default: 0.
+        base_lr (float, optional): Initial learning rate. Default: 0.1.
+        last_epoch (int, optional): The index of the last epoch. Default: -1.
+        verbose (bool | str): If ``True``, prints a message to stdout for
+            each update. Default: ``False``.
+
+            .. deprecated:: 2.2
+                ``verbose`` is deprecated. Please use ``get_last_lr()`` to access the
+                learning rate.
+
+    .. _SGDR\: Stochastic Gradient Descent with Warm Restarts:
+        https://arxiv.org/abs/1608.03983
+
+        Adapted from torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
+    """
 
     def __init__(self, env, T_0, eta_min=0, base_lr=0.1, t_mult=1):
         """Initialize the Agent."""
@@ -22,7 +52,6 @@ class CosineAnnealingWRAgent(AbstractDACBenchAgent):
 
     def act(self, state=None, reward=None):
         """Returns the next action."""
-        # current_time_ms = time()
         self.epoch += 1
         
         if self.epoch is None and self.last_epoch < 0:
@@ -50,7 +79,6 @@ class CosineAnnealingWRAgent(AbstractDACBenchAgent):
         self.last_epoch = math.floor(self.epoch)
 
         self.current_lr = self.eta_min + (self.base_lr - self.eta_min) * (1 + math.cos(math.pi * self.T_cur / self.T_i)) / 2
-        # print("CAWR: {}".format(time()-current_time_ms))
         return self.current_lr
 
     def train(self, state=None, reward=None):  # noqa: D102

@@ -1,15 +1,21 @@
 import math
 from dacbench.abstract_agent import AbstractDACBenchAgent
 from smac import Scenario
-from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
-from ConfigSpace import Configuration, ConfigurationSpace, Float
 from smac import HyperparameterOptimizationFacade as HPOFacade
 from smac import Scenario
 from smac.runhistory.dataclasses import TrialValue
 from dacbench.abstract_agent import AbstractDACBenchAgent
+from ConfigSpace import Configuration
 
 class SMACAgent(AbstractDACBenchAgent):
-    """Agent for Learning Rate in SGD Benchmark using SMAC"""
+    r"""Agent for Learning Rate Training in DACBench using SMAC
+        This is a hacky solution to train SMAC using the ask-and-tell interface with episode rewards.
+        
+    Args:
+        - env: DACBench environment
+        - configspace: ConfigurationSpace for hyperparameters to optimize
+        - n_trials: number of trials to perform by SMAC
+    """
 
     def __init__(self, env, configspace, n_trials):
         """Initialize the Agent."""

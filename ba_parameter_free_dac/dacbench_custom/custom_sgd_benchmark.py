@@ -16,7 +16,7 @@ from dacbench_custom.custom_sgd import CustomSGDEnv
 import dacbench
 
 class CustomSGDBenchmark(SGDBenchmark):
-    """Benchmark with default configuration & relevant functions for SGD."""
+    r"""Customizable SGD Benchmark with default configuration & relevant functions for SGD. Main differences to SGDBenchmark is a specifiable optimizer_type."""
 
     def __init__(self, optimizer_type, config_path=None, config=None):
         """Initialize SGD Benchmark.
