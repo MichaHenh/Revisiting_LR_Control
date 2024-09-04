@@ -4,7 +4,7 @@ from torch.optim.optimizer import Optimizer, required, _use_grad_for_differentia
 __all__ = ['COCOB', 'cocob']
 
 class COCOBTrackable(Optimizer):
-    r"""Implements the COCOB algorithm.
+    r"""Implements the COCOB algorithm with trackable effective learning rate.
     It has been proposed in `Training Deep Networks without Learning Rates Through Coin Betting`_.
     
     Args:

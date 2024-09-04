@@ -87,16 +87,15 @@ class COCOB(Optimizer):
 
                 # update maximum range of the gradients
                 torch.max(L, torch.abs(grad), out=L)
-                # udpate dual vector, line 8
-                sum_negative_gradients.sub_(grad) # why negative gradients?
+                sum_negative_gradients.sub_(grad)
                 # update sum of the absolute values of the gradients, line 6
                 grad_norm_sum.add_(torch.abs(grad))
                 # update the wealth/reward, line 7
-                reward.addcmul_(grad, p.data.sub(x0), value=-1) # why -1? shouldn't it be 1? 
+                reward.addcmul_(grad, p.data.sub(x0), value=-1)
                 # reset the wealth to zero in case we lost all
                 torch.maximum(reward, torch.zeros_like(reward), out=reward)
                 # calculate denominator of betas
-                den = torch.maximum(grad_norm_sum.add(L), L.mul(self._alpha)).mul(L) # where is the sigma(x)?
+                den = torch.maximum(grad_norm_sum.add(L), L.mul(self._alpha)).mul(L) 
                 # update model parameters
                 p.data.copy_(reward.add(L).mul(sum_negative_gradients).div(den).add(x0))
                                 
