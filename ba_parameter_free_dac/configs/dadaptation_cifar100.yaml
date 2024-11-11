@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: dadaptation_cifar10
+name: dadaptation_cifar100
 agent:
   type: StaticAgent
   lr: 1
@@ -12,6 +12,6 @@ track_effective_lr: true
 dacbench_sgd_config:
   optimizer_params: null
   cutoff: 30
-  dataset_name: CIFAR10
+  dataset_name: CIFAR100
   fraction_of_dataset: 1.0
-  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
+  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]
