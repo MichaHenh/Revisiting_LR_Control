@@ -3,10 +3,11 @@ from dacbench.agents import StaticAgent
 from dacbench.logger import Logger
 from pathlib import Path
 
-from parameterfree import COCOB
+from parameterfree.cocob_optimizer import COCOB
 from parameterfree.cocob_trackable_optimizer import COCOBTrackable
 from parameterfree.STORMplus import STORMplus
 from parameterfree.DoWG import DoWG, CDoWG
+from parameterfree.dadaptation import DAdaptAdam
 from torch.optim import AdamW
 from dacbench_custom.custom_sgd_benchmark import CustomSGDBenchmark
 from dacbench_custom.custom_tracking_wrapper import CustomTrackingWrapper
@@ -18,6 +19,8 @@ from ConfigSpace import Configuration, ConfigurationSpace, Float
 
 def get_optimizer_type(optimizer_type_name):
     match optimizer_type_name:
+        case "DAdaptAdam":
+            return DAdaptAdam
         case "COCOB":
             return COCOB
         case "COCOB_trackable":
