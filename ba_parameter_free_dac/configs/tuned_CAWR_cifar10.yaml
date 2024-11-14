@@ -1,0 +1,19 @@
+defaults:
+  - base
+
+name: CAWR_cifar10
+agent:
+  type: CosineAnnealingWRAgent
+  T_0: 37
+  eta_min: 0.003557623793142359
+  base_lr: 0.004615122677732417
+  t_mult: 1.4970838478886588
+num_episodes: 1
+optimizer_type: adam
+
+dacbench_sgd_config:
+  epoch_mode: False # in SGDWR paper lr is adapted every mini batch
+  cutoff: 18750 # 50000*0.8=40000 -> 40000/64 = 625 -> 30 episodes = 30*625=18750
+  dataset_name: CIFAR10
+  fraction_of_dataset: 1.0
+  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
