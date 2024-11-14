@@ -34,7 +34,7 @@ hydra:
     search_space:  # TODO adjust search space
       hyperparameters:
         T0:
-          type: uniform_float
+          type: uniform_int
           lower: 0
           upper: 50
           default: 10
@@ -52,15 +52,15 @@ hydra:
           default: 0.005
           log: false
         t_mult:
-          type: uniform_float
+          type: uniform_int
           lower: 1
           upper: 5
           default: 2
           log: false
   run:
-    dir: results/tuned_cawr_cifar10_${seed}
+    dir: results/tune_cawr_cifar10_${seed}
   sweep:
-    dir: results/tuned_cawr_cifar10_${seed}
+    dir: results/tune_cawr_cifar10_${seed}
   job:
     chdir: true
 

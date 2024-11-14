@@ -7,7 +7,7 @@ agent:
   T_0: 37
   eta_min: 0.003557623793142359
   base_lr: 0.004615122677732417
-  t_mult: 1.4970838478886588
+  t_mult: 2
 num_episodes: 1
 optimizer_type: adam
 
