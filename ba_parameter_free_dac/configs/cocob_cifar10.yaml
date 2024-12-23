@@ -11,7 +11,7 @@ track_effective_lr: true
 
 dacbench_sgd_config:
   optimizer_params: null
-  cutoff: 50
+  cutoff: 300
   dataset_name: CIFAR10
   fraction_of_dataset: 1.0
   torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
