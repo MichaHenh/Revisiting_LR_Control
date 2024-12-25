@@ -8,6 +8,10 @@ agent:
 num_episodes: 1
 optimizer_type: adam
 
+hydra:
+  launcher:
+    timeout_min: 4500
+
 dacbench_sgd_config:
   cutoff: 300
   dataset_name: CIFAR10

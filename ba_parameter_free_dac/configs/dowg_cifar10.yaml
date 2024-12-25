@@ -9,6 +9,10 @@ num_episodes: 1
 optimizer_type: dowg
 track_effective_lr: true
 
+hydra:
+  launcher:
+    timeout_min: 4500
+
 dacbench_sgd_config:
   optimizer_params: null
   cutoff: 300
