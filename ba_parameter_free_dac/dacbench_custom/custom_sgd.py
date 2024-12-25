@@ -7,6 +7,7 @@ import torch
 from time import time
 from dacbench.envs import SGDEnv
 from dacbench.envs.env_utils import sgd_utils
+from dacbench_custom import custom_models
 
 def _optimizer_action(
     optimizer: torch.optim.Optimizer, action: float, use_momentum: bool
@@ -76,6 +77,7 @@ def run_epoch(model, loss_function, loader, optimizer, device="cpu"):
     model.train()
     
     for data, target in loader:
+        # print("iteration")
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)
@@ -160,6 +162,7 @@ class CustomSGDEnv(SGDEnv):
         self.use_testing = config['use_testing'] if 'use_testing' in config else True
         self.use_validation_as_test = config['use_validation_as_test'] if 'use_validation_as_test' in config else False
         self.use_run_epoch_stormplus = config['use_run_epoch_stormplus'] if 'use_run_epoch_stormplus' in config else False
+        self.custom_model = config.get("custom_model", None)
 
     def step(self, action: float):
         """Update the parameters of the neural network using the given learning rate lr,
@@ -254,6 +257,8 @@ class CustomSGDEnv(SGDEnv):
 
         reward = self.get_reward(self)
 
+        print("step {}/{}".format(self.c_step, self.n_steps))
+
         return self.get_state(self), reward, False, truncated, info
 
     def reset(self, seed=None, options=None):
@@ -276,12 +281,16 @@ class CustomSGDEnv(SGDEnv):
         elif self.torchub_model[0]:
             hub_model = torch.hub.load(
                 # local model loading for offline mode
-                torch.hub.get_dir() + '/' + self.torchub_model[0],
+                torch.hub.get_dir() + '/' +
+                self.torchub_model[0],
                 self.torchub_model[1],
                 pretrained=self.torchub_model[2],
                 source='local'
             )
             self.model = torch.nn.Sequential(hub_model, torch.nn.LogSoftmax(dim=1))
+        elif self.custom_model:
+            custom_model = custom_models.get_model(self.custom_model)
+            self.model = torch.nn.Sequential(custom_model, torch.nn.LogSoftmax(dim=1))
         else:
             # Load model from config file
             self.model = sgd_utils.create_model(
