@@ -1,12 +1,12 @@
 defaults:
   - base
 
-name: COCOB_cifar10
+name: DoWG_cifar10
 agent:
   type: StaticAgent
   lr: 1
 num_episodes: 1
-optimizer_type: COCOB_trackable
+optimizer_type: dowg
 track_effective_lr: true
 
 dacbench_sgd_config:

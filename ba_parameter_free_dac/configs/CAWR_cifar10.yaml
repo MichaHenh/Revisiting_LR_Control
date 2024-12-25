@@ -20,4 +20,4 @@ dacbench_sgd_config:
   cutoff: 187500 # 50000*0.8=40000 -> 40000/64 = 625 -> 300 epochs = 300*625=187500
   dataset_name: CIFAR10
   fraction_of_dataset: 1.0
-  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar10_resnet20", False]
+  custom_model: wrn16-8
