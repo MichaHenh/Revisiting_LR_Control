@@ -17,7 +17,7 @@ hydra:
 
 dacbench_sgd_config:
   epoch_mode: False # in SGDWR paper lr is adapted every mini batch 
-  cutoff: 187500 # 50000*0.8=40000 -> 40000/64 = 625 -> 30 epochs = 300*625=187500
+  cutoff: 187500 # 50000*0.8=40000 -> 40000/64 = 625 -> 300 epochs = 300*625=187500
   dataset_name: CIFAR100
   fraction_of_dataset: 1.0
-  torch_hub_model: ["chenyaofo_pytorch-cifar-models_master", "cifar100_resnet20", False]
+  custom_model: densenet121
