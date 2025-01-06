@@ -195,6 +195,16 @@ class DenseNet(nn.Module):
             in_channels += self.growth_rate
         return dense_block
 
+class LogisticRegression(torch.nn.Module):    
+    # build the constructor
+    def __init__(self, n_inputs, n_outputs):
+        super(LogisticRegression, self).__init__()
+        self.linear = torch.nn.Linear(n_inputs, n_outputs)
+    # make predictions
+    def forward(self, x):
+        y_pred = torch.sigmoid(self.linear(x))
+        return y_pred
+
 
 def get_model(name):
     match name:
@@ -202,5 +212,27 @@ def get_model(name):
             return WideResNet(16, 10, 2, 0.3)
         case "densenet121":
             return DenseNet(Bottleneck, [6,12,24,16], growth_rate=12)
+        case "logistic_reg_iris":
+            return LogisticRegression(4, 3)
+        case "logistic_reg_sensorless":
+            return LogisticRegression(48, 11)
+        case "logistic_reg_aloi":
+            return LogisticRegression(128, 1000)
+        case "logistic_reg_dna":
+            return LogisticRegression(180, 3)
+        case "logistic_reg_glass":
+            return LogisticRegression(9, 6)
+        case "logistic_reg_letter":
+            return LogisticRegression(16, 26)
+        case "logistic_reg_pendigits":
+            return LogisticRegression(16, 10)
+        case "logistic_reg_usps":
+            return LogisticRegression(256, 10)
+        case "logistic_reg_vehicle":
+            return LogisticRegression(18, 4)
+        case "logistic_reg_vowel":
+            return LogisticRegression(10, 11)
+        case "logistic_reg_wine":
+            return LogisticRegression(13, 3)
         case _:
             return None

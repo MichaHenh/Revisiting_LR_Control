@@ -6,8 +6,43 @@ import torch
 
 from time import time
 from dacbench.envs import SGDEnv
+from dacbench import AbstractMADACEnv
 from dacbench.envs.env_utils import sgd_utils
+from dacbench.envs.env_utils.sgd_utils import random_torchvision_loader
 from dacbench_custom import custom_models
+from torch.utils.data.dataloader import DataLoader
+from torch.utils.data import Dataset
+from dacbench_custom.libsvmloader import fetch_libsvm
+
+
+class LIBSVMDataset(Dataset):
+    def __init__(self, X, y):
+        self.X = torch.tensor(X.todense() if hasattr(X, 'todense') else X, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.long)
+        self.y = self.y - self.y.min()
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
+def random_libsvm_loader(
+    seed: int,
+    name: str | None,
+    batch_size: int,
+) -> tuple[DataLoader, DataLoader, DataLoader]:
+    
+    try:
+        X, y = fetch_libsvm(name, normalize=True)
+
+        train_loader = DataLoader(LIBSVMDataset(X, y), batch_size=batch_size, shuffle=True)
+        val_loader = DataLoader(LIBSVMDataset(X, y), batch_size=batch_size, shuffle=True)
+        test_loader = DataLoader(LIBSVMDataset(X, y), batch_size=batch_size, shuffle=True)
+
+        return train_loader, val_loader, test_loader
+    except:
+        return None, None, None
 
 def _optimizer_action(
     optimizer: torch.optim.Optimizer, action: float, use_momentum: bool
@@ -156,7 +191,48 @@ class CustomSGDEnv(SGDEnv):
     def __init__(self, config, optimizer_type):
         """Init env."""
         torch.manual_seed(config['seed'])
-        super(CustomSGDEnv, self).__init__(config)
+        
+        # START of SGDEnv init
+        AbstractMADACEnv.__init__(self, config)
+        self.epoch_mode = config.get("epoch_mode", True)
+        self.device = config.get("device")
+
+        self.learning_rate = None
+        self.optimizer_type = torch.optim.AdamW
+        self.optimizer_params = config.get("optimizer_params")
+        self.batch_size = config.get("training_batch_size")
+        self.model = config.get("model")
+        self.crash_penalty = config.get("crash_penalty")
+        self.loss_function = config.loss_function(**config.loss_function_kwargs)
+        self.dataset_name = config.get("dataset_name")
+        self.use_momentum = config.get("use_momentum")
+        self.use_generator = config.get("model_from_dataset")
+        self.torchub_model = config.get("torch_hub_model", (False, None, False))
+
+        # Use default reward function, if no specific function is given
+        self.get_reward = config.get("reward_function", self.get_default_reward)
+
+        # Use default state function, if no specific function is given
+        self.get_state = config.get("state_method", self.get_default_state)
+
+        self.train_loader, self.validation_loader, self.test_loader = random_libsvm_loader(
+            config.get("seed"),
+            self.dataset_name,
+            self.batch_size)
+
+        if self.train_loader is None:
+             # Get loaders for instance
+            self.datasets, loaders = random_torchvision_loader(
+                config.get("seed"),
+                config.get("instance_set_path"),
+                self.dataset_name,
+                self.batch_size,
+                config.get("fraction_of_dataset"),
+                config.get("train_validation_ratio"),
+            )
+            self.train_loader, self.validation_loader, self.test_loader = loaders
+        # END of SGDEnv init
+
         self.optimizer_type = optimizer_type
         self.use_validation = config['use_validation'] if 'use_validation' in config else True
         self.use_testing = config['use_testing'] if 'use_testing' in config else True
