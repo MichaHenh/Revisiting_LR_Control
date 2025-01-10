@@ -11,7 +11,7 @@ track_effective_lr: true
 
 hydra:
   launcher:
-    timeout_min: 1440
+    timeout_min: 120
     cpus_per_task: 4
     mem_gb: 6
 
