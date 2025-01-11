@@ -36,7 +36,7 @@ hydra:
       seed: ${seed}
       n_trials: 300
       deterministic: true
-      n_workers: 64
+      n_workers: 8
     smac_kwargs:
       dask_client:
         _target_: dask.distributed.Client
@@ -59,7 +59,7 @@ hydra:
         base_lr:
           type: uniform_float
           lower: 0
-          upper: 0.005
+          upper: 0.05
           default: 0.005
           log: false
         t_mult:
