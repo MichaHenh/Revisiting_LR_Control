@@ -7,7 +7,9 @@ num_episodes: ${smac.n_trials}
 
 hydra:
   launcher:
-    timeout_min: 480
+    timeout_min: 120
+    cpus_per_task: 4
+    mem_gb: 8
 
 smac:
   optimizer_type: adam
