@@ -19,4 +19,10 @@ module load Miniconda3
 
 conda activate PFDAC
 
+export MASTER_ADDR=$(scontrol show hostname $SLURM_NODELIST | head -n 1)  # Master node address
+export MASTER_PORT=12345           # A free port for communication
+export WORLD_SIZE=$SLURM_NTASKS    # Total number of processes
+export RANK=$SLURM_PROCID          # Global rank of the process
+export LOCAL_RANK=$SLURM_LOCALID   # Local rank of the process
+
 python roberta_experiment.py
