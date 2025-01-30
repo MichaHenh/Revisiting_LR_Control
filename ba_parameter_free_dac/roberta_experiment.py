@@ -78,13 +78,13 @@ def setup_trainer(model, tokenized_datasets):
     # Define training arguments
     training_args = TrainingArguments(
         output_dir="./results",
-        max_steps=80,  # Run for 80 steps only to approximate time
+        max_steps=20,  # Run for 80 steps only to approximate time
         per_device_train_batch_size=8,  # Effective batch size = 8 * 8 GPUs = 64
         per_device_eval_batch_size=8,
-        save_steps=40,  # Save model every 40 steps
+        save_steps=5,  # Save model every 40 steps
         save_total_limit=1,  # Keep only the last checkpoint
         logging_dir="./logs",
-        logging_steps=10,  # Log every 10 steps
+        logging_steps=1,  # Log every 10 steps
         evaluation_strategy="steps",  # Evaluate every `eval_steps`
         eval_steps=10,  # Evaluate every 10 steps
         warmup_steps=10,  # Warmup steps
@@ -115,16 +115,16 @@ def setup_trainer(model, tokenized_datasets):
 
 # Step 6: Main Function to Run the Training
 def main():
-    # Initialize distributed backend (SLURM-aware)
-    if "SLURM_PROCID" in os.environ:
-        dist.init_process_group(backend="nccl", init_method="env://")
 
+    print("Load and Tokenize dataset")
     # Load and tokenize the dataset
     tokenized_datasets = load_and_tokenize_dataset()
 
+    print("Setup Model")
     # Set up the 110M parameter RoBERTa model
     model = setup_roberta_model()
 
+    print("Setup Trainer")
     # Set up the Trainer
     trainer = setup_trainer(model, tokenized_datasets)
 
