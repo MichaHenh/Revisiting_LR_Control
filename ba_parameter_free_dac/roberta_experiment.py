@@ -9,14 +9,18 @@ import torch.distributed as dist
 # Step 1: Load and Tokenize the Dataset
 def load_and_tokenize_dataset():
     # Load Wikipedia with trust_remote_code=True
+    print("Load Wikipedia")
     wikipedia = load_dataset("wikipedia", "20220301.en", trust_remote_code=True)["train"]  # Replace with the latest version
 
+    print("Load BookCorpus")
     # Load BookCorpus (e.g., Project Gutenberg)
     bookcorpus = load_dataset("bookcorpus", split="train")
 
+    print("Concat")
     # Combine datasets
     combined_dataset = concatenate_datasets([wikipedia, bookcorpus])
 
+    print("Load Tokenizer")
     # Load the tokenizer
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
@@ -26,8 +30,10 @@ def load_and_tokenize_dataset():
         tokenized["labels"] = tokenized["input_ids"].copy()  # Add labels for MLM
         return tokenized
 
+    print("Tokenize...")
     tokenized_datasets = combined_dataset.map(tokenize_function, batched=True)
 
+    print("Train-Val-Split...")
     # Split into train and validation sets
     split_datasets = tokenized_datasets.train_test_split(test_size=0.1)  # 90% train, 10% validation
     return split_datasets
