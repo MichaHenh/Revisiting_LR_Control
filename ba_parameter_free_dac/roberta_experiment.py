@@ -4,16 +4,22 @@ import torch
 from transformers import AdamW
 import json
 import os
-import torch.distributed as dist
+from parameterfree.cocob_optimizer import COCOB
+from parameterfree.cocob_trackable_optimizer import COCOBTrackable
+from parameterfree.STORMplus import STORMplus
+from parameterfree.DoWG import DoWG, CDoWG
+from parameterfree.dadaptation import DAdaptAdam
+from parameterfree.prodigy import Prodigy
+from torch.optim import AdamW
+from codecarbon import track_emissions
+import hydra
 
 # Step 1: Load and Tokenize the Dataset
 def load_and_tokenize_dataset():
-    # Load Wikipedia with trust_remote_code=True
     print("Load Wikipedia")
-    wikipedia = load_dataset("wikipedia", "20220301.en", trust_remote_code=True)["train"]  # Replace with the latest version
+    wikipedia = load_dataset("wikipedia", "20220301.en", trust_remote_code=True)["train"]  # Maybe replace with the latest version
 
     print("Load BookCorpus")
-    # Load BookCorpus (e.g., Project Gutenberg)
     bookcorpus = load_dataset("bookcorpus", split="train")
 
     print("Concat")
@@ -23,10 +29,12 @@ def load_and_tokenize_dataset():
     print("Load Tokenizer")
     # Load the tokenizer
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+    # I think we can't leave out this pretrained tokenization because embeddings are very very hard to find
 
     # Tokenize the dataset and prepare labels for MLM
     def tokenize_function(examples):
-        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)  # Shorter sequence length
+        # If I understand "Max tokens per sample" from D_Adapt paper correctly, we might have to set max_length=512 
+        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128) 
         tokenized["labels"] = tokenized["input_ids"].copy()  # Add labels for MLM
         return tokenized
 
@@ -40,24 +48,23 @@ def load_and_tokenize_dataset():
 
 # Step 2: Set Up the 110M Parameter RoBERTa Model
 def setup_roberta_model():
-    # Define the standard RoBERTa-base configuration (110M parameters)
+    # This should be the standard RoBERTa-base configuration (110M parameters)
     config = RobertaConfig(
-        vocab_size=50265,  # Standard RoBERTa vocabulary size
-        hidden_size=768,   # Standard hidden size for RoBERTa-base
-        num_hidden_layers=12,  # Standard number of layers for RoBERTa-base
-        num_attention_heads=12,  # Standard number of attention heads for RoBERTa-base
-        intermediate_size=3072,  # Standard intermediate size for RoBERTa-base
-        max_position_embeddings=514,  # Maximum sequence length
-        type_vocab_size=1,  # Typically 1 for RoBERTa
-        dropout=0.1,  # Dropout rate
-        attention_dropout=0.1,  # Attention dropout rate
+        vocab_size=50265,
+        hidden_size=768,
+        num_hidden_layers=12,
+        num_attention_heads=12,
+        intermediate_size=3072,
+        max_position_embeddings=514,
+        type_vocab_size=1,
+        dropout=0.1,
+        attention_dropout=0.1
     )
 
     # Create the RoBERTa model for masked language modeling
     model = RobertaForMaskedLM(config=config)
     return model
 
-# Step 3: Define a Function to Compute Perplexity
 def compute_perplexity(eval_pred):
     logits, labels = eval_pred
     # Calculate cross-entropy loss
@@ -80,33 +87,35 @@ class PerplexityCallback(TrainerCallback):
         return control
 
 # Step 5: Set Up Training Arguments and Trainer
-def setup_trainer(model, tokenized_datasets):
+def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     # Define training arguments
     training_args = TrainingArguments(
         output_dir="./results",
-        max_steps=20,  # Run for 80 steps only to approximate time
+        max_steps=23000, 
         per_device_train_batch_size=8,  # Effective batch size = 8 * 8 GPUs = 64
         per_device_eval_batch_size=8,
-        save_steps=5,  # Save model every 40 steps
+        save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
         logging_dir="./logs",
-        logging_steps=1,  # Log every 10 steps
+        logging_steps=1,  # Log every step
         evaluation_strategy="steps",  # Evaluate every `eval_steps`
-        eval_steps=10,  # Evaluate every 10 steps
-        warmup_steps=10,  # Warmup steps
+        eval_steps=10,  # Evaluate every 10 steps. Maybe we should even evaluate every step but this would make it much more expensive
+        warmup_steps=10000,  # Warmup steps from D-Adaptation
         learning_rate=1e-3,  # Scaled learning rate for 8 GPUs
         weight_decay=0.01,  # Weight decay
         fp16=True,  # Enable mixed precision training
         dataloader_num_workers=4,  # Number of CPU workers for data loading
-        gradient_accumulation_steps=1,  # No gradient accumulation needed
-        load_best_model_at_end=False,  # No need to load best model for short run
+        gradient_accumulation_steps=1,
+        load_best_model_at_end=False, 
         metric_for_best_model="perplexity",
-        greater_is_better=False,  # Lower perplexity is better
-        local_rank=int(os.getenv("LOCAL_RANK", 0)),  # For distributed training
+        greater_is_better=False,
+        local_rank=int(os.getenv("LOCAL_RANK", 0)),
     )
 
     # Use AdamW optimizer
-    optimizer = AdamW(model.parameters(), lr=1e-3, weight_decay=0.01)
+    optimizer = get_optimizer_type(optimizer_cfg.type)(model.parameters(),
+                                                       lr=optimizer_cfg.lr,
+                                                       weight_decay=optimizer_cfg.weight_decay)
 
     # Initialize the Trainer
     trainer = Trainer(
@@ -119,8 +128,31 @@ def setup_trainer(model, tokenized_datasets):
     )
     return trainer
 
-# Step 6: Main Function to Run the Training
-def main():
+# get optimizer type from string
+def get_optimizer_type(optimizer_type_name):
+    match optimizer_type_name:
+        case "ProdigyAdam":
+            return Prodigy
+        case "DAdaptAdam":
+            return DAdaptAdam
+        case "COCOB":
+            return COCOB
+        case "COCOB_trackable":
+            return COCOBTrackable
+        case "stormplus":
+            return STORMplus
+        case "dowg":
+            return DoWG
+        case "cdowg":
+            return CDoWG
+        case "adam":
+            return AdamW
+        
+    return AdamW
+
+@hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
+@track_emissions(offline=True, country_iso_code="DEU")
+def main(cfg):
 
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
@@ -132,7 +164,7 @@ def main():
 
     print("Setup Trainer")
     # Set up the Trainer
-    trainer = setup_trainer(model, tokenized_datasets)
+    trainer = setup_trainer(model, tokenized_datasets, cfg.optimizer)
 
     # Add the custom callback to the trainer
     perplexity_callback = PerplexityCallback()
@@ -142,7 +174,3 @@ def main():
     print("Starting training...")
     trainer.train()
     print("Training complete!")
-
-# Run the script
-if __name__ == "__main__":
-    main()
