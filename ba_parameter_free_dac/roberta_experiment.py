@@ -155,7 +155,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         output_dir="./results",
         max_steps=23000, 
         per_device_train_batch_size=8,  # Effective batch size = 8 * 8 GPUs = 64
-        per_device_eval_batch_size=8,
+        per_device_eval_batch_size=4,
         save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
         logging_dir="./logs",
