@@ -62,7 +62,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
 
     # Load full datasets
     wikipedia = load_dataset("wikipedia", "20220301.en", split="train")
-    bookcorpus = load_dataset("bookcorpus", split="train")
+    bookcorpus = load_dataset("bookcorpus", split="train", trust_remote_code=True)
 
     # Combine datasets
 
