@@ -9,9 +9,9 @@
 #SBATCH --nodes=1  # Number of nodes
 #SBATCH --ntasks-per-node=8  # Number of GPUs per node
 #SBATCH --cpus-per-task=4  # Number of CPU cores per GPU
-#SBATCH --gres=gpu:8  # Request 8 GPUs
+#SBATCH --gres=gpu:4  # Request 8 GPUs
 #SBATCH --time=24:00:00  # Maximum runtime
-#SBATCH --mem=128G  # Memory per node
+#SBATCH --mem=256G  # Memory per node
 #SBATCH --mail-user=finn.micha.henheik@stud.uni-hannover.de
 #SBATCH --mail-type=FAIL
 
