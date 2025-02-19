@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=RoBERTa_bookwiki_test
-#SBATCH --partition=ai
+#SBATCH --job-name=RoBERTa_bookwiki
 
 #SBATCH --output %x.out
 #SBATCH --error %x.err
