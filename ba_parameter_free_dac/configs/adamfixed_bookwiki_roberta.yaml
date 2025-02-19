@@ -9,8 +9,8 @@ optimizer:
   weight_decay: 0.01
 
 # TODO needs to be adjusted
-hydra:
-  launcher:
-    timeout_min: 120
-    cpus_per_task: 4
-    mem_gb: 6
+# hydra:
+#   launcher:
+#     timeout_min: 120
+#     cpus_per_task: 4
+#     mem_gb: 6
