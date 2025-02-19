@@ -1,5 +1,6 @@
 from transformers import RobertaConfig, RobertaForMaskedLM, RobertaTokenizer, Trainer, TrainingArguments, TrainerCallback, set_seed
-from datasets import load_dataset, concatenate_datasets
+from datasets import load_dataset, concatenate_datasets, DatasetDict
+import time
 import torch
 from transformers import AdamW
 import json
@@ -15,42 +16,96 @@ from codecarbon import track_emissions
 import hydra
 
 # Step 1: Load and Tokenize the Dataset
-def load_and_tokenize_dataset():
-    print("Load Wikipedia")
-    wikipedia = load_dataset("wikipedia", "20220301.en", trust_remote_code=True)["train"]  # Maybe replace with the latest version
+# def load_and_tokenize_dataset():
+#     print("Load Wikipedia")
+#     wikipedia = load_dataset("wikipedia", "20220301.en", trust_remote_code=True)["train"]  # Maybe replace with the latest version
 
-    print("Load BookCorpus")
+#     print("Load BookCorpus")
+#     bookcorpus = load_dataset("bookcorpus", split="train")
+
+#     print("Concat")
+#     # Combine datasets
+#     combined_dataset = concatenate_datasets([wikipedia, bookcorpus])
+
+#     print("Load Tokenizer")
+#     # Load the tokenizer
+#     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+#     # I think we can't leave out this pretrained tokenization because embeddings are very very hard to find
+
+#     # Tokenize the dataset and prepare labels for MLM
+#     def tokenize_function(examples):
+#         # If I understand "Max tokens per sample" from D_Adapt paper correctly, we might have to set max_length=512 
+#         tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
+#         tokenized["labels"] = tokenized["input_ids"].copy()  # Add labels for MLM
+#         return tokenized
+
+#     # Assuming 'combined_dataset' is your concatenated dataset:
+#     subset_size = int(0.001 * len(combined_dataset))
+#     # Optionally, shuffle the dataset to get a random 2%
+#     combined_dataset = combined_dataset.shuffle(seed=42).select(range(subset_size))
+
+
+#     print("Tokenize...")
+#     tokenized_datasets = combined_dataset.map(tokenize_function, batched=True)
+
+#     print("Train-Val-Split...")
+#     # Split into train and validation sets
+#     split_datasets = tokenized_datasets.train_test_split(test_size=0.1)  # 90% train, 10% validation
+#     return split_datasets
+
+def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001, batch_size=8):
+    if os.path.exists(save_path):
+        print(f"Loading tokenized dataset from {save_path}...")
+        return DatasetDict.load_from_disk(save_path)
+    start_time = time.time()  # Start timing
+
+    # Load full datasets
+    wikipedia = load_dataset("wikipedia", "20220301.en", split="train")
     bookcorpus = load_dataset("bookcorpus", split="train")
 
-    print("Concat")
     # Combine datasets
-    combined_dataset = concatenate_datasets([wikipedia, bookcorpus])
 
-    print("Load Tokenizer")
-    # Load the tokenizer
+    full_dataset = concatenate_datasets([wikipedia, bookcorpus])
+
+    # Shuffle dataset before selecting a subset
+    full_dataset = full_dataset.shuffle(seed=42)
+
+    # Get dataset sizes
+    full_size = len(full_dataset)
+    subset_size = max(1, int(full_size * subset_ratio))
+
+    # Take a shuffled small subset
+    small_dataset = full_dataset.select(range(subset_size))
+
+    print(f"📊 Full Dataset Size: {full_size:,} samples")
+    print(f"📉 Subset Size ({subset_ratio * 100:.2f}%): {subset_size:,} samples (shuffled)")
+
+    # Load tokenizer
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-    # I think we can't leave out this pretrained tokenization because embeddings are very very hard to find
 
-    # Tokenize the dataset and prepare labels for MLM
     def tokenize_function(examples):
-        # If I understand "Max tokens per sample" from D_Adapt paper correctly, we might have to set max_length=512 
-        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
-        tokenized["labels"] = tokenized["input_ids"].copy()  # Add labels for MLM
+        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
+        tokenized["labels"] = tokenized["input_ids"].copy()
         return tokenized
 
-    # Assuming 'combined_dataset' is your concatenated dataset:
-    subset_size = int(0.001 * len(combined_dataset))
-    # Optionally, shuffle the dataset to get a random 2%
-    combined_dataset = combined_dataset.shuffle(seed=42).select(range(subset_size))
+    # Tokenize datasets
+    tokenized_subset = small_dataset.map(tokenize_function, batched=True)
 
+    split_datasets = tokenized_subset.train_test_split(test_size=0.1)
 
-    print("Tokenize...")
-    tokenized_datasets = combined_dataset.map(tokenize_function, batched=True)
+    # Save tokenized dataset
+    print(f"Saving tokenized dataset to {save_path}...")
+    split_datasets.save_to_disk(save_path)
 
-    print("Train-Val-Split...")
-    # Split into train and validation sets
-    split_datasets = tokenized_datasets.train_test_split(test_size=0.1)  # 90% train, 10% validation
+    # Compute batch-adjusted sizes
+    subset_batches = len(tokenized_subset) // batch_size
+
+    tokenization_time = time.time() - start_time  # End timing
+    print(f"⏳ Tokenization Time: {tokenization_time:.2f} seconds")
+    print(f"🟡 Subset Dataset: {subset_batches} batches (batch size={batch_size})")
+
     return split_datasets
+
 
 # Step 2: Set Up the 110M Parameter RoBERTa Model
 def setup_roberta_model():
