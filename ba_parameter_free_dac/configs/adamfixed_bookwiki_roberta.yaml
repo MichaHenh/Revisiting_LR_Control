@@ -1,5 +1,5 @@
-defaults:
-  - gpu
+# defaults:
+#   - cluster/gpu
 
 name: Adam_fixed_roberta_bookwiki
 seed: 1
