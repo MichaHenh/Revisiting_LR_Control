@@ -12,7 +12,7 @@ from parameterfree.DoWG import DoWG, CDoWG
 from parameterfree.dadaptation import DAdaptAdam
 from parameterfree.prodigy import Prodigy
 from torch.optim import AdamW
-from codecarbon import track_emissions
+# from codecarbon import track_emissions
 import hydra
 
 # Step 1: Load and Tokenize the Dataset
@@ -212,7 +212,7 @@ def get_optimizer_type(optimizer_type_name):
     return AdamW
 
 @hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
-@track_emissions(offline=True, country_iso_code="DEU")
+#@track_emissions(offline=True, country_iso_code="DEU")
 def main(cfg):
     set_seed(cfg.seed)
     print("Load and Tokenize dataset")
