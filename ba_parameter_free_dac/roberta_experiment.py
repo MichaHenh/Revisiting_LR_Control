@@ -1,4 +1,4 @@
-from transformers import RobertaConfig, RobertaForMaskedLM, RobertaTokenizer, Trainer, TrainingArguments, TrainerCallback
+from transformers import RobertaConfig, RobertaForMaskedLM, RobertaTokenizer, Trainer, TrainingArguments, TrainerCallback, set_seed
 from datasets import load_dataset, concatenate_datasets
 import torch
 from transformers import AdamW
@@ -34,9 +34,15 @@ def load_and_tokenize_dataset():
     # Tokenize the dataset and prepare labels for MLM
     def tokenize_function(examples):
         # If I understand "Max tokens per sample" from D_Adapt paper correctly, we might have to set max_length=512 
-        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128) 
+        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
         tokenized["labels"] = tokenized["input_ids"].copy()  # Add labels for MLM
         return tokenized
+
+    # Assuming 'combined_dataset' is your concatenated dataset:
+    subset_size = int(0.001 * len(combined_dataset))
+    # Optionally, shuffle the dataset to get a random 2%
+    combined_dataset = combined_dataset.shuffle(seed=42).select(range(subset_size))
+
 
     print("Tokenize...")
     tokenized_datasets = combined_dataset.map(tokenize_function, batched=True)
@@ -102,10 +108,10 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         eval_steps=10,  # Evaluate every 10 steps. Maybe we should even evaluate every step but this would make it much more expensive
         warmup_steps=10000,  # Warmup steps from D-Adaptation
         learning_rate=1e-3,  # Scaled learning rate for 8 GPUs
-        weight_decay=0.01,  # Weight decay
+        weight_decay=0.0,  # Weight decay
         fp16=True,  # Enable mixed precision training
         dataloader_num_workers=4,  # Number of CPU workers for data loading
-        gradient_accumulation_steps=1,
+        gradient_accumulation_steps=16,
         load_best_model_at_end=False, 
         metric_for_best_model="perplexity",
         greater_is_better=False,
@@ -153,7 +159,7 @@ def get_optimizer_type(optimizer_type_name):
 @hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
 @track_emissions(offline=True, country_iso_code="DEU")
 def main(cfg):
-
+    set_seed(cfg.seed)
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
     tokenized_datasets = load_and_tokenize_dataset()
