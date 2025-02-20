@@ -156,7 +156,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         max_steps=23000, 
         per_device_train_batch_size=32,  # Effective batch size = 8 * 8 GPUs = 64
         per_device_eval_batch_size=2,
-        eval_accumulation_steps=32,
+        eval_accumulation_steps=16,
         save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
         logging_dir="./logs",
@@ -167,7 +167,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         learning_rate=1e-3,  # Scaled learning rate for 8 GPUs
         weight_decay=0.0,  # Weight decay
         fp16=True,  # Enable mixed precision training
-        dataloader_num_workers=4,  # Number of CPU workers for data loading
+        dataloader_num_workers=2,  # Number of CPU workers for data loading
         gradient_accumulation_steps=16,
         load_best_model_at_end=False, 
         metric_for_best_model="perplexity",
