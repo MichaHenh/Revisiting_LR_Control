@@ -6,6 +6,7 @@ from transformers import AdamW
 import json
 import os
 import sys
+import torch.nn.functional as F
 from parameterfree.cocob_optimizer import COCOB
 from parameterfree.cocob_trackable_optimizer import COCOBTrackable
 from parameterfree.STORMplus import STORMplus
@@ -127,13 +128,36 @@ def setup_roberta_model():
     model = RobertaForMaskedLM(config=config)
     return model
 
+def preprocess_logits_for_metrics(logits, labels):
+    """
+    Instead of returning the full logits, compute the average cross-entropy loss for the batch.
+    This avoids having to store all logits.
+    """
+    # Compute loss per token; ensure labels with -100 are ignored.
+    loss = F.cross_entropy(
+        logits.view(-1, logits.shape[-1]),
+        labels.view(-1),
+        ignore_index=-100,
+        reduction="none"
+    )
+    # Reshape loss to [batch_size, sequence_length] and compute average loss per sample
+    loss = loss.view(labels.shape)
+    batch_loss = loss.mean(dim=1)  # Average loss per sample in the batch
+    # Return the average loss across the batch (scalar) along with labels (if needed)
+    return batch_loss.mean().unsqueeze(0), labels
+
 def compute_perplexity(eval_pred):
-    logits, labels = eval_pred
-    # Calculate cross-entropy loss
-    loss_fct = torch.nn.CrossEntropyLoss()
-    loss = loss_fct(torch.tensor(logits).view(-1, logits.shape[-1]), torch.tensor(labels).view(-1))
-    perplexity = torch.exp(loss).item()  # Perplexity = exp(loss)
+    avg_loss, labels = eval_pred  # Here, avg_loss is a tensor with the average loss
+    perplexity = torch.exp(avg_loss).item()
     return {"perplexity": perplexity}
+
+# def compute_perplexity(eval_pred):
+#     logits, labels = eval_pred
+#     # Calculate cross-entropy loss
+#     loss_fct = torch.nn.CrossEntropyLoss()
+#     loss = loss_fct(torch.tensor(logits).view(-1, logits.shape[-1]), torch.tensor(labels).view(-1))
+#     perplexity = torch.exp(loss).item()  # Perplexity = exp(loss)
+#     return {"perplexity": perplexity}
 
 # Step 4: Define a Custom Callback to Save Perplexity Values
 class PerplexityCallback(TrainerCallback):
@@ -155,8 +179,8 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         output_dir="./results",
         max_steps=23000, 
         per_device_train_batch_size=32,  # Effective batch size = 8 * 8 GPUs = 64
-        per_device_eval_batch_size=32,
-        eval_accumulation_steps=64,
+        per_device_eval_batch_size=16,
+        eval_accumulation_steps=16,
         save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
         logging_dir="./logs",
@@ -188,6 +212,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         eval_dataset=tokenized_datasets["test"],  # Use the full validation dataset
         optimizers=(optimizer, None),  # Use AdamW optimizer
         compute_metrics=compute_perplexity,  # Compute perplexity during evaluation
+        preprocess_logits_for_metrics=preprocess_logits_for_metrics
     )
     return trainer
 
