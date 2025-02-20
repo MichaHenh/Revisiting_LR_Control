@@ -177,6 +177,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     # Define training arguments
     training_args = TrainingArguments(
         output_dir="./results",
+        # SET TO 23000
         max_steps=100,
         per_device_train_batch_size=32,  # Effective batch size = 8 * 8 GPUs = 64
         per_device_eval_batch_size=16,
@@ -186,8 +187,9 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         logging_dir="./logs",
         logging_steps=1,  # Log every step
         evaluation_strategy="steps",  # Evaluate every `eval_steps`
+        # SET TO 1000
         eval_steps=10,  # Evaluate every 10 steps. Maybe we should even evaluate every step but this would make it much more expensive
-        warmup_steps=10000,  # Warmup steps from D-Adaptation
+        warmup_steps=10,  # Warmup steps from D-Adaptation
         learning_rate=1e-3,  # Scaled learning rate for 8 GPUs
         weight_decay=0.0,  # Weight decay
         fp16=True,  # Enable mixed precision training
