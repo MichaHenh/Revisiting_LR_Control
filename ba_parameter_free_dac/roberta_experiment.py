@@ -181,7 +181,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     training_args = TrainingArguments(
         output_dir="./results",
         # SET TO 23000
-        max_steps=100,
+        max_steps=20,
         per_device_train_batch_size=32,  # Effective batch size = 8 * 8 GPUs = 64
         per_device_eval_batch_size=16,
         eval_accumulation_steps=16,
