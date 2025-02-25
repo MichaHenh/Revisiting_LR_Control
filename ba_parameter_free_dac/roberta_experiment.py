@@ -249,7 +249,7 @@ def main(cfg):
     set_seed(cfg.seed)
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
-    tokenized_datasets = load_and_tokenize_dataset()
+    tokenized_datasets = load_and_tokenize_dataset(save_path='../../../tokenized_dataset')
 
     print("Setup Model")
     # Set up the 110M parameter RoBERTa model
