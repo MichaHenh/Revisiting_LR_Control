@@ -86,7 +86,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
     def tokenize_function(examples):
-        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=256)
+        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
         tokenized["labels"] = tokenized["input_ids"].copy()
         return tokenized
 
@@ -189,7 +189,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     training_args = TrainingArguments(
         output_dir="./results",
         max_steps=23000,
-        per_device_train_batch_size=48,  # Effective batch size = 8 * 8 GPUs = 64
+        per_device_train_batch_size=64,  # Effective batch size = 8 * 8 GPUs = 64
         per_device_eval_batch_size=16,
         eval_accumulation_steps=16,
         save_steps=1000,
