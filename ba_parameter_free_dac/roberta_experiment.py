@@ -147,7 +147,10 @@ def preprocess_logits_for_metrics(logits, labels):
     return batch_loss.mean().unsqueeze(0), labels
 
 def compute_perplexity(eval_pred):
-    avg_loss, labels = eval_pred  # Here, avg_loss is a tensor with the average loss
+    avg_loss, labels = eval_pred
+    # If avg_loss is a tuple, extract the first element
+    if isinstance(avg_loss, (tuple, list)):
+        avg_loss = avg_loss[0]
     perplexity = torch.exp(avg_loss).item()
     return {"perplexity": perplexity}
 
