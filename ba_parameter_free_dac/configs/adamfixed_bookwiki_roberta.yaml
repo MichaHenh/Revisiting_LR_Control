@@ -10,6 +10,12 @@ optimizer:
 
 # TODO needs to be adjusted
 hydra:
+  run:
+    dir: results/${name}
+  sweep:
+    dir: results/${name}
+  job:
+    chdir: true
   launcher:
     timeout_min: 4320
     cpus_per_task: 4
