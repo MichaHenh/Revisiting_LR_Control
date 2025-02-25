@@ -86,7 +86,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
     def tokenize_function(examples):
-        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
+        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
         tokenized["labels"] = tokenized["input_ids"].copy()
         return tokenized
 
@@ -257,7 +257,7 @@ def main(cfg):
     set_seed(cfg.seed)
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
-    tokenized_datasets = load_and_tokenize_dataset(save_path='../../../tokenized_dataset', subset_ratio=0.01)
+    tokenized_datasets = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.01, batch_size=64)
 
     print("Setup Model")
     # Set up the 110M parameter RoBERTa model
