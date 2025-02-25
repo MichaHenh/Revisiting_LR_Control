@@ -86,7 +86,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
     def tokenize_function(examples):
-        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
+        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=256)
         tokenized["labels"] = tokenized["input_ids"].copy()
         return tokenized
 
