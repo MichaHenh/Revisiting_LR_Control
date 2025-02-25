@@ -151,7 +151,7 @@ def compute_perplexity(eval_pred):
     # If avg_loss is a tuple, extract the first element
     if isinstance(avg_loss, (tuple, list)):
         avg_loss = avg_loss[0]
-    perplexity = torch.exp(torch.tensor(avg_loss)).item()
+    perplexity = torch.exp(avg_loss.mean()).item()
     return {"perplexity": perplexity}
 
 # def compute_perplexity(eval_pred):
