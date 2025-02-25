@@ -154,6 +154,14 @@ def compute_perplexity(eval_pred):
     perplexity = torch.exp(torch.tensor(avg_loss).mean()).item()
     return {"perplexity": perplexity}
 
+class TrainPerplexityCallback(TrainerCallback):
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if logs is not None and "loss" in logs:
+            # Compute perplexity from loss
+            logs["train_perplexity"] = torch.exp(torch.tensor(logs["loss"])).item()
+        return control
+
+
 # def compute_perplexity(eval_pred):
 #     logits, labels = eval_pred
 #     # Calculate cross-entropy loss
@@ -180,8 +188,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     # Define training arguments
     training_args = TrainingArguments(
         output_dir="./results",
-        # SET TO 23000
-        max_steps=20,
+        max_steps=23000,
         per_device_train_batch_size=32,  # Effective batch size = 8 * 8 GPUs = 64
         per_device_eval_batch_size=16,
         eval_accumulation_steps=16,
@@ -190,9 +197,8 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         logging_dir="./logs",
         logging_steps=1,  # Log every step
         evaluation_strategy="steps",  # Evaluate every `eval_steps`
-        # SET TO 1000
-        eval_steps=10,  # Evaluate every 10 steps. Maybe we should even evaluate every step but this would make it much more expensive
-        warmup_steps=10,  # Warmup steps from D-Adaptation
+        eval_steps=50,  # Evaluate every 10 steps. Maybe we should even evaluate every step but this would make it much more expensive
+        warmup_steps=1000,  # Warmup steps from D-Adaptation
         learning_rate=1e-3,  # Scaled learning rate for 8 GPUs
         weight_decay=0.0,  # Weight decay
         fp16=True,  # Enable mixed precision training
@@ -219,6 +225,8 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         compute_metrics=compute_perplexity,  # Compute perplexity during evaluation
         preprocess_logits_for_metrics=preprocess_logits_for_metrics
     )
+    trainer.add_callback(TrainPerplexityCallback())
+
     return trainer
 
 # get optimizer type from string
@@ -249,7 +257,7 @@ def main(cfg):
     set_seed(cfg.seed)
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
-    tokenized_datasets = load_and_tokenize_dataset(save_path='../../../tokenized_dataset')
+    tokenized_datasets = load_and_tokenize_dataset(save_path='../../../tokenized_dataset', subset_ratio=0.01)
 
     print("Setup Model")
     # Set up the 110M parameter RoBERTa model
