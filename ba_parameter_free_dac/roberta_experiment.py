@@ -86,7 +86,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
     def tokenize_function(examples):
-        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
+        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
         tokenized["labels"] = tokenized["input_ids"].copy()
         return tokenized
 
@@ -196,8 +196,8 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     training_args = TrainingArguments(
         output_dir="./results",
         max_steps=23000,
-        per_device_train_batch_size=256,  # Effective batch size = 64 * 4 GPUs = 256
-        per_device_eval_batch_size=256,
+        per_device_train_batch_size=128,  # Effective batch size = 64 * 4 GPUs = 256
+        per_device_eval_batch_size=128,
         # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
         save_steps=1000,
@@ -269,7 +269,7 @@ def main(cfg):
     print(cfg)
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
-    tokenized_datasets = load_and_tokenize_dataset(save_path='../tokenized_dataset', subset_ratio=0.02, batch_size=48)
+    tokenized_datasets = load_and_tokenize_dataset(save_path='../tokenized_dataset', subset_ratio=0.02, batch_size=512)
 
     print("Setup Model")
     # Set up the 110M parameter RoBERTa model
