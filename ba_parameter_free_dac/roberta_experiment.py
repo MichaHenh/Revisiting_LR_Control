@@ -262,7 +262,7 @@ def get_optimizer_type(optimizer_type_name):
         
     return AdamW
 
-@hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta", ignore_unknown_args=True)
+@hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
 #@track_emissions(offline=True, country_iso_code="DEU")
 def main(cfg):
     set_seed(cfg.seed)
