@@ -163,6 +163,7 @@ class TrainPerplexityCallback(TrainerCallback):
 
 class EffectiveLrCallback(TrainerCallback):
     def on_log(self, args, state, control, logs=None, **kwargs):
+    print("EffectiveLRCallback triggered")  # Debug print
         if logs is not None and hasattr(self, 'trainer') and hasattr(self.trainer, 'optimizer'):
             optimizer = self.trainer.optimizer
             if hasattr(optimizer, 'get_effective_lr'):
