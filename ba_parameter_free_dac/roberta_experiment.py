@@ -159,7 +159,7 @@ class TrainPerplexityCallback(TrainerCallback):
         if logs is not None and "loss" in logs:
             # Compute perplexity from loss
             logs["train_perplexity"] = torch.exp(torch.tensor(logs["loss"])).item()
-        return control
+        # return control
 
 class EffectiveLrCallback(TrainerCallback):
     def on_log(self, args, state, control, logs=None, **kwargs):
@@ -167,7 +167,7 @@ class EffectiveLrCallback(TrainerCallback):
             optimizer = kwargs.get("optimizer")
             if hasattr(optimizer, 'avg_effective_lr'):
                 logs["avg_effective_lr"] = optimizer.avg_effective_lr
-        return control
+        # return control
 
 # def compute_perplexity(eval_pred):
 #     logits, labels = eval_pred
@@ -230,10 +230,11 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         eval_dataset=tokenized_datasets["test"],  # Use the full validation dataset
         optimizers=(optimizer, None),  # Use AdamW optimizer
         compute_metrics=compute_perplexity,  # Compute perplexity during evaluation
-        preprocess_logits_for_metrics=preprocess_logits_for_metrics
+        preprocess_logits_for_metrics=preprocess_logits_for_metrics,
+        callbacks=[TrainPerplexityCallback, EffectiveLrCallback]
     )
-    trainer.add_callback(TrainPerplexityCallback())
-    trainer.add_callback(EffectiveLrCallback())
+    # trainer.add_callback(TrainPerplexityCallback())
+    # trainer.add_callback(EffectiveLrCallback())
 
 
     return trainer
