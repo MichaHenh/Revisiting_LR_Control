@@ -5,7 +5,6 @@ name: COCOB_roberta_bookwiki
 seed: 1
 optimizer:
   type: COCOB_trackable
-  lr: 1
   weight_decay: 0.01
 
 # TODO needs to be adjusted
