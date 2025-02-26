@@ -274,6 +274,9 @@ def main(cfg):
     print("Setup Model")
     # Set up the 110M parameter RoBERTa model
     model = setup_roberta_model()
+    device = torch.device("cuda:0")
+    model.to(device)
+
 
     print("Setup Trainer")
     # Set up the Trainer
