@@ -86,14 +86,14 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
     def tokenize_function(examples):
-        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
+        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
         tokenized["labels"] = tokenized["input_ids"].copy()
         return tokenized
 
     # Tokenize datasets
     tokenized_subset = small_dataset.map(tokenize_function, batched=True)
 
-    split_datasets = tokenized_subset.train_test_split(test_size=0.05)
+    split_datasets = tokenized_subset.train_test_split(test_size=0.025)
 
     # Save tokenized dataset
     print(f"Saving tokenized dataset to {save_path}...")
@@ -198,7 +198,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         max_steps=23000,
         per_device_train_batch_size=64,  # Effective batch size = 64 * 4 GPUs = 256
         per_device_eval_batch_size=128,
-        deepspeed="../deepspeed_config.json",
+        # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
         save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
