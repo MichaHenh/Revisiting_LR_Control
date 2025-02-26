@@ -167,6 +167,7 @@ class EffectiveLrCallback(TrainerCallback):
             optimizer = self.trainer.optimizer
             if hasattr(optimizer, 'get_effective_lr'):
                 logs["avg_effective_lr"] = optimizer.avg_effective_lr
+                print(f"Effective LR: {optimizer.avg_effective_lr}")  # Debug print
         return control
 
 # def compute_perplexity(eval_pred):
