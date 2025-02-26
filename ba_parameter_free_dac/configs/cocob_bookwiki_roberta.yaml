@@ -1,0 +1,25 @@
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+name: COCOB_roberta_bookwiki
+seed: 1
+optimizer:
+  type: COCOB_trackable
+  lr: 1
+  weight_decay: 0.01
+
+# TODO needs to be adjusted
+hydra:
+  run:
+    dir: results/${name}
+  sweep:
+    dir: results/${name}
+  job:
+    chdir: true
+  launcher:
+    timeout_min: 4320
+    cpus_per_task: 4
+    gres: "gpu:4"
+    mem_gb: 256
+    nodes: 1
+    tasks_per_node: 8  
