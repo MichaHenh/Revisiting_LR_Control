@@ -265,6 +265,7 @@ def get_optimizer_type(optimizer_type_name):
 #@track_emissions(offline=True, country_iso_code="DEU")
 def main(cfg):
     set_seed(cfg.seed)
+    print(cfg)
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
     tokenized_datasets = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.02, batch_size=48)
