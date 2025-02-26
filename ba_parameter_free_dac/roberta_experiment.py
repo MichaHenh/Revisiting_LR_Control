@@ -196,8 +196,8 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     training_args = TrainingArguments(
         output_dir="./results",
         max_steps=23000,
-        per_device_train_batch_size=48,  # Effective batch size = 64 * 4 GPUs = 256
-        per_device_eval_batch_size=48,
+        per_device_train_batch_size=256,  # Effective batch size = 64 * 4 GPUs = 256
+        per_device_eval_batch_size=256,
         # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
         save_steps=1000,
@@ -212,9 +212,9 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         fp16=True,  # Enable mixed precision training
         dataloader_num_workers=2,  # Number of CPU workers for data loading
         # gradient_accumulation_steps=16,
-        load_best_model_at_end=False, 
-        metric_for_best_model="perplexity",
-        greater_is_better=False,
+        # load_best_model_at_end=False, 
+        # metric_for_best_model="perplexity",
+        # greater_is_better=False,
         # local_rank=int(os.getenv("LOCAL_RANK", 0)),
     )
 
