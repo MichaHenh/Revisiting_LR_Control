@@ -166,13 +166,9 @@ class TrainPerplexityCallback(TrainerCallback):
         return control
 
 class EffectiveLrCallback(TrainerCallback):
-
-    def set_trainer(self, trainer):
-        self.trainer = trainer
-
     def on_log(self, args, state, control, logs=None, **kwargs):
         if logs is not None:
-            optimizer = self.trainer.deepspeed.optimizer if self.trainer.deepspeed is not None else kwargs.get("optimizer")
+            optimizer = kwargs.get("optimizer")
             print(optimizer.avg_effective_lr)
             if hasattr(optimizer, 'avg_effective_lr'):
                 logs["avg_effective_lr"] = optimizer.avg_effective_lr
@@ -211,7 +207,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         max_steps=150,
         per_device_train_batch_size=128,  # Effective batch size = 64 * 4 GPUs = 256
         per_device_eval_batch_size=256,
-        deepspeed="../deepspeed_config.json",
+        # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
         save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
@@ -237,7 +233,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
                                                        weight_decay=optimizer_cfg.weight_decay) if 'lr' in optimizer_cfg else
                 get_optimizer_type(optimizer_cfg.type)(model.parameters(),
                                                        weight_decay=optimizer_cfg.weight_decay))
-    elrCallback = EffectiveLrCallback()
+    
     # Initialize the Trainer
     trainer = Trainer(
         model=model,
@@ -247,9 +243,8 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         optimizers=(optimizer, None),  # Use AdamW optimizer
         compute_metrics=compute_perplexity,  # Compute perplexity during evaluation
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
-        callbacks=[TrainPerplexityCallback, elrCallback]
+        callbacks=[TrainPerplexityCallback, EffectiveLrCallback]
     )
-    elrCallback.set_trainer(trainer)
     # trainer.add_callback(TrainPerplexityCallback())
     # trainer.add_callback(EffectiveLrCallback())
 
