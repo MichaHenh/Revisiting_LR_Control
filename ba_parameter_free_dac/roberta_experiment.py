@@ -163,7 +163,7 @@ class TrainPerplexityCallback(TrainerCallback):
             if state.log_history:
                 # This ensures the custom metric is saved in the final log history.
                 state.log_history[-1]["train_perplexity"] = torch.exp(torch.tensor(logs["loss"])).item()
-        # return control
+        return control
 
 class EffectiveLrCallback(TrainerCallback):
     def on_log(self, args, state, control, logs=None, **kwargs):
@@ -176,7 +176,7 @@ class EffectiveLrCallback(TrainerCallback):
             if state.log_history:
                 # This ensures the custom metric is saved in the final log history.
                 state.log_history[-1]["effective_lr"] = optimizer.avg_effective_lr
-        # return control
+        return control
 
 # def compute_perplexity(eval_pred):
 #     logits, labels = eval_pred
