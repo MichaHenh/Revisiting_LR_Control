@@ -159,6 +159,10 @@ class TrainPerplexityCallback(TrainerCallback):
         if logs is not None and "loss" in logs:
             # Compute perplexity from loss
             logs["train_perplexity"] = torch.exp(torch.tensor(logs["loss"])).item()
+
+            if state.log_history:
+                # This ensures the custom metric is saved in the final log history.
+                state.log_history[-1]["train_perplexity"] = torch.exp(torch.tensor(logs["loss"])).item()
         # return control
 
 class EffectiveLrCallback(TrainerCallback):
@@ -167,6 +171,10 @@ class EffectiveLrCallback(TrainerCallback):
             optimizer = kwargs.get("optimizer")
             if hasattr(optimizer, 'avg_effective_lr'):
                 logs["avg_effective_lr"] = optimizer.avg_effective_lr
+
+            if state.log_history:
+                # This ensures the custom metric is saved in the final log history.
+                state.log_history[-1]["effective_lr"] = optimizer.avg_effective_lr
         # return control
 
 # def compute_perplexity(eval_pred):
@@ -195,7 +203,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     # Define training arguments
     training_args = TrainingArguments(
         output_dir="./results",
-        max_steps=23000,
+        max_steps=150,
         per_device_train_batch_size=128,  # Effective batch size = 64 * 4 GPUs = 256
         per_device_eval_batch_size=256,
         deepspeed="../deepspeed_config.json",
