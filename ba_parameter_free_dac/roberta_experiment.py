@@ -207,7 +207,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         max_steps=150,
         per_device_train_batch_size=128,  # Effective batch size = 64 * 4 GPUs = 256
         per_device_eval_batch_size=256,
-        deepspeed="../deepspeed_config.json",
+        # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
         save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
