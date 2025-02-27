@@ -169,12 +169,12 @@ class EffectiveLrCallback(TrainerCallback):
     def on_log(self, args, state, control, logs=None, **kwargs):
         if logs is not None:
             optimizer = kwargs.get("optimizer")
-            if hasattr(optimizer, 'avg_effective_lr'):
+            if hasattr(optimizer, 'avg_effective_lr') and optimizer.avg_effective_lr:
                 logs["avg_effective_lr"] = optimizer.avg_effective_lr.item()
 
-            if state.log_history:
-                # This ensures the custom metric is saved in the final log history.
-                state.log_history[-1]["effective_lr"] = optimizer.avg_effective_lr.item()
+                if state.log_history:
+                    # This ensures the custom metric is saved in the final log history.
+                    state.log_history[-1]["effective_lr"] = optimizer.avg_effective_lr.item()
         return control
 
 # def compute_perplexity(eval_pred):
