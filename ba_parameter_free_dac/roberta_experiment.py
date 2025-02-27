@@ -166,6 +166,7 @@ class TrainPerplexityCallback(TrainerCallback):
         return control
 
 class EffectiveLrCallback(TrainerCallback):
+
     def set_trainer(self, trainer):
         self.trainer = trainer
 
@@ -236,7 +237,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
                                                        weight_decay=optimizer_cfg.weight_decay) if 'lr' in optimizer_cfg else
                 get_optimizer_type(optimizer_cfg.type)(model.parameters(),
                                                        weight_decay=optimizer_cfg.weight_decay))
-
+    elrCallback = EffectiveLrCallback()
     # Initialize the Trainer
     trainer = Trainer(
         model=model,
@@ -246,8 +247,9 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         optimizers=(optimizer, None),  # Use AdamW optimizer
         compute_metrics=compute_perplexity,  # Compute perplexity during evaluation
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
-        callbacks=[TrainPerplexityCallback, EffectiveLrCallback]
+        callbacks=[TrainPerplexityCallback, elrCallback]
     )
+    elrCallback.set_trainer(trainer)
     # trainer.add_callback(TrainPerplexityCallback())
     # trainer.add_callback(EffectiveLrCallback())
 
