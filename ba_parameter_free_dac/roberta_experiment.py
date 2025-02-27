@@ -93,7 +93,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
     # Tokenize datasets
     tokenized_subset = small_dataset.map(tokenize_function, batched=True)
 
-    split_datasets = tokenized_subset.train_test_split(test_size=0.025)
+    split_datasets = tokenized_subset.train_test_split(test_size=0.00625)
 
     # Save tokenized dataset
     print(f"Saving tokenized dataset to {save_path}...")
