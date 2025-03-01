@@ -227,11 +227,13 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     )
 
     # Use AdamW optimizer
-    optimizer = (get_optimizer_type(optimizer_cfg.type)(model.parameters(),
-                                                       lr=optimizer_cfg.lr,
-                                                       weight_decay=optimizer_cfg.weight_decay) if 'lr' in optimizer_cfg else
-                get_optimizer_type(optimizer_cfg.type)(model.parameters(),
-                                                       weight_decay=optimizer_cfg.weight_decay))
+    kwargs = {}
+    if 'lr' in optimizer_cfg:
+        kwargs['lr'] = optimizer_cfg.lr
+    if 'weight_decay' in optimizer_cfg:
+        kwargs['weight_decay'] = optimizer_cfg.weight_decay
+
+    optimizer = get_optimizer_type(optimizer_cfg.type)(model.parameters(), **kwargs)
     
     # Initialize the Trainer
     trainer = Trainer(
