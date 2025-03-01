@@ -233,7 +233,8 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
     if 'weight_decay' in optimizer_cfg:
         kwargs['weight_decay'] = optimizer_cfg.weight_decay
 
-    optimizer = get_optimizer_type(optimizer_cfg.type)(model.parameters(), **kwargs)
+    optimizer = (get_optimizer_type(optimizer_cfg.type)(model.parameters(), **kwargs) if kwargs else
+                get_optimizer_type(optimizer_cfg.type)(model.parameters()))
     
     # Initialize the Trainer
     trainer = Trainer(
