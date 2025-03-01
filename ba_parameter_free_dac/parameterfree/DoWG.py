@@ -20,7 +20,7 @@ class DoWG(Optimizer):
         self.avg_effective_lr = None
         super(DoWG, self).__init__(params, defaults)
 
-    def step(self):
+    def step(self, closure = None):
         """Performs a single optimization step."""
         state = self.state
 
