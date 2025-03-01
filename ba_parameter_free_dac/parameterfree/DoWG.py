@@ -14,7 +14,7 @@ class DoWG(Optimizer):
             numerical stability (default: 1e-8). Also used as the default squared distance estimate.
     """
 
-    def __init__(self, params, eps=1e-8):
+    def __init__(self, params, weight_decay=0, eps=1e-8):
         defaults = dict(eps=eps)
         self.eps = eps
         self.avg_effective_lr = None
