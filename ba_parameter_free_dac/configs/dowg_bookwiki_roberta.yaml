@@ -5,7 +5,6 @@ name: DoWG_roberta_bookwiki
 seed: 1
 optimizer:
   type: dowg
-  lr: 1
   weight_decay: 0.01
 
 # TODO needs to be adjusted
