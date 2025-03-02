@@ -40,6 +40,13 @@ hydra:
     dir: results/${name}
   job:
     chdir: true
+  launcher:
+    timeout_min: 4320
+    cpus_per_task: 4
+    gres: "gpu:4"
+    mem_gb: 256
+    nodes: 1
+    tasks_per_node: 8 
 
 lr: 0.001
 
