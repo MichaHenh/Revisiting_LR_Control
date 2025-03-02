@@ -1,14 +1,16 @@
 defaults:
   - override hydra/launcher: submitit_slurm
 
-name: ProdigyAdam_roberta_bookwiki
+name: CAWR_roberta_bookwiki
 seed: 1
 use_evaluation: true
 
 optimizer:
-  type: ProdigyAdam
-  lr: 1
-  weight_decay: 0.01
+  type: CosineAnnealingWRAgent
+  T_0: 10
+  eta_min: 0
+  base_lr: 0.005
+  t_mult: 2
 
 # TODO needs to be adjusted
 hydra:
