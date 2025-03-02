@@ -247,7 +247,7 @@ def main(cfg):
 
     print("Setup Trainer")
     # Set up the Trainer
-    trainer = setup_trainer(model, tokenized_datasets, cfg.optimizer, cfg.use_evaluation, cfg.steps)
+    trainer = setup_trainer(model, tokenized_datasets, cfg.optimizer, cfg.use_evaluation, int(cfg.steps))
 
     # Add the custom callback to the trainer
     perplexity_callback = PerplexityCallback()
