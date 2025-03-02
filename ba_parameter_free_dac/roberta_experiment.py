@@ -14,46 +14,7 @@ from parameterfree.DoWG import DoWG, CDoWG
 from parameterfree.dadaptation import DAdaptAdam
 from parameterfree.prodigy import Prodigy
 from torch.optim import AdamW
-# from codecarbon import track_emissions
 import hydra
-
-# Step 1: Load and Tokenize the Dataset
-# def load_and_tokenize_dataset():
-#     print("Load Wikipedia")
-#     wikipedia = load_dataset("wikipedia", "20220301.en", trust_remote_code=True)["train"]  # Maybe replace with the latest version
-
-#     print("Load BookCorpus")
-#     bookcorpus = load_dataset("bookcorpus", split="train")
-
-#     print("Concat")
-#     # Combine datasets
-#     combined_dataset = concatenate_datasets([wikipedia, bookcorpus])
-
-#     print("Load Tokenizer")
-#     # Load the tokenizer
-#     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-#     # I think we can't leave out this pretrained tokenization because embeddings are very very hard to find
-
-#     # Tokenize the dataset and prepare labels for MLM
-#     def tokenize_function(examples):
-#         # If I understand "Max tokens per sample" from D_Adapt paper correctly, we might have to set max_length=512 
-#         tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
-#         tokenized["labels"] = tokenized["input_ids"].copy()  # Add labels for MLM
-#         return tokenized
-
-#     # Assuming 'combined_dataset' is your concatenated dataset:
-#     subset_size = int(0.001 * len(combined_dataset))
-#     # Optionally, shuffle the dataset to get a random 2%
-#     combined_dataset = combined_dataset.shuffle(seed=42).select(range(subset_size))
-
-
-#     print("Tokenize...")
-#     tokenized_datasets = combined_dataset.map(tokenize_function, batched=True)
-
-#     print("Train-Val-Split...")
-#     # Split into train and validation sets
-#     split_datasets = tokenized_datasets.train_test_split(test_size=0.1)  # 90% train, 10% validation
-#     return split_datasets
 
 def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001, batch_size=8):
     if os.path.exists(save_path):
@@ -108,7 +69,6 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
 
     return split_datasets
 
-
 # Step 2: Set Up the 110M Parameter RoBERTa Model
 def setup_roberta_model():
     # This should be the standard RoBERTa-base configuration (110M parameters)
@@ -158,11 +118,12 @@ class TrainPerplexityCallback(TrainerCallback):
     def on_log(self, args, state, control, logs=None, **kwargs):
         if logs is not None and "loss" in logs:
             # Compute perplexity from loss
-            logs["train_perplexity"] = torch.exp(torch.tensor(logs["loss"])).item()
+            perplexity = torch.exp(torch.tensor(logs["loss"])).item()
+            logs["train_perplexity"] = perplexity
 
             if state.log_history:
                 # This ensures the custom metric is saved in the final log history.
-                state.log_history[-1]["train_perplexity"] = torch.exp(torch.tensor(logs["loss"])).item()
+                state.log_history[-1]["train_perplexity"] = perplexity
         return control
 
 class EffectiveLrCallback(TrainerCallback):
@@ -176,14 +137,6 @@ class EffectiveLrCallback(TrainerCallback):
                     # This ensures the custom metric is saved in the final log history.
                     state.log_history[-1]["effective_lr"] = optimizer.avg_effective_lr.item()
         return control
-
-# def compute_perplexity(eval_pred):
-#     logits, labels = eval_pred
-#     # Calculate cross-entropy loss
-#     loss_fct = torch.nn.CrossEntropyLoss()
-#     loss = loss_fct(torch.tensor(logits).view(-1, logits.shape[-1]), torch.tensor(labels).view(-1))
-#     perplexity = torch.exp(loss).item()  # Perplexity = exp(loss)
-#     return {"perplexity": perplexity}
 
 # Step 4: Define a Custom Callback to Save Perplexity Values
 class PerplexityCallback(TrainerCallback):
@@ -199,7 +152,7 @@ class PerplexityCallback(TrainerCallback):
         return control
 
 # Step 5: Set Up Training Arguments and Trainer
-def setup_trainer(model, tokenized_datasets, optimizer_cfg):
+def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True):
     # Define training arguments
     training_args = TrainingArguments(
         output_dir="./results",
@@ -212,7 +165,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg):
         save_total_limit=1,  # Keep only the last checkpoint
         logging_dir="./logs",
         logging_steps=1,  # Log every step
-        evaluation_strategy="steps",  # Evaluate every `eval_steps`
+        evaluation_strategy="steps" if use_evaluation else "no",  # Evaluate every `eval_steps`
         eval_steps=50,  # Evaluate every 10 steps. Maybe we should even evaluate every step but this would make it much more expensive
         warmup_steps=1000,  # Warmup steps from D-Adaptation
         learning_rate=1e-3,  # Scaled learning rate for 8 GPUs
@@ -276,7 +229,6 @@ def get_optimizer_type(optimizer_type_name):
     return AdamW
 
 @hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
-#@track_emissions(offline=True, country_iso_code="DEU")
 def main(cfg):
     set_seed(cfg.seed)
     print(cfg)
@@ -293,7 +245,7 @@ def main(cfg):
 
     print("Setup Trainer")
     # Set up the Trainer
-    trainer = setup_trainer(model, tokenized_datasets, cfg.optimizer)
+    trainer = setup_trainer(model, tokenized_datasets, cfg.optimizer, cfg.use_evaluation)
 
     # Add the custom callback to the trainer
     perplexity_callback = PerplexityCallback()
@@ -303,6 +255,8 @@ def main(cfg):
     print("Starting training...")
     trainer.train()
     print("Training complete!")
+    
+    return trainer.state.log_history[-1]["eval_perplexity" if cfg.use_evaluation else "train_perplexity"]
 
 if __name__ == "__main__":
     sys.exit(main())  # pragma: no cover
