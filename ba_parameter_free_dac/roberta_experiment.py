@@ -5,6 +5,7 @@ import torch
 from transformers import AdamW
 import json
 import os
+import subprocess
 import sys
 import torch.nn.functional as F
 from parameterfree.cocob_optimizer import COCOB
@@ -265,10 +266,22 @@ def main(cfg):
 
 @hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
 def main_wrapper(cfg):
-    if 'manual_ddp' in cfg and cfg.manual_ddp:
-        notebook_launcher(main, args=(cfg,), num_processes=4)
+    if "WORLD_SIZE" not in os.environ:
+        # Not in distributed mode, so re-launch using torchrun
+        nproc = "4"  # number of GPUs you want to use
+        cmd = [
+            "torchrun",
+            f"--nproc_per_node={nproc}",
+            sys.argv[0],
+            *sys.argv[1:]  # pass any additional command-line args
+        ]
+        print("Launching with torchrun:", " ".join(cmd))
+        subprocess.run(cmd)
+        sys.exit(0)
     else:
-        sys.exit(main(cfg))
+        # Already in distributed mode; execute main training code.
+        print("Running in distributed mode!")
+        main(cfg)
 
 if __name__ == "__main__":
     sys.exit(main_wrapper())  # pragma: no cover
