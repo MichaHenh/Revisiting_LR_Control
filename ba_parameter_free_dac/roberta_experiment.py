@@ -152,11 +152,11 @@ class PerplexityCallback(TrainerCallback):
         return control
 
 # Step 5: Set Up Training Arguments and Trainer
-def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True):
+def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True, steps=23000):
     # Define training arguments
     training_args = TrainingArguments(
         output_dir="./results",
-        max_steps=23000,
+        max_steps=steps,
         per_device_train_batch_size=128,  # Effective batch size = 64 * 4 GPUs = 256
         per_device_eval_batch_size=256,
         # deepspeed="../deepspeed_config.json",
@@ -245,7 +245,7 @@ def main(cfg):
 
     print("Setup Trainer")
     # Set up the Trainer
-    trainer = setup_trainer(model, tokenized_datasets, cfg.optimizer, cfg.use_evaluation)
+    trainer = setup_trainer(model, tokenized_datasets, cfg.optimizer, cfg.use_evaluation, cfg.steps)
 
     # Add the custom callback to the trainer
     perplexity_callback = PerplexityCallback()

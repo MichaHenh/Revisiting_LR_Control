@@ -9,7 +9,7 @@ name: smacfixed_bookwiki_roberta_${seed}
 hydra:
   sweeper:
     n_trials: 50
-    budget_variable: epochs
+    budget_variable: steps
     sweeper_kwargs:
       optimizer_kwargs:
         smac_facade: 
@@ -41,7 +41,7 @@ hydra:
   job:
     chdir: true
   launcher:
-    timeout_min: 4320
+    timeout_min: 240
     cpus_per_task: 4
     gres: "gpu:4"
     mem_gb: 256
@@ -49,9 +49,10 @@ hydra:
     tasks_per_node: 8 
 
 lr: 0.001
+use_evaluation: false
+steps: 23000
 
 optimizer:
   type: adam
   lr: ${lr}
   weight_decay: 0.01
-use_evaluation: false
