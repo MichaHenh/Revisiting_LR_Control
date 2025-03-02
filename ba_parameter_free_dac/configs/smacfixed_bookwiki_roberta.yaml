@@ -1,6 +1,7 @@
 defaults:
   - _self_
   - override hydra/sweeper: HyperSMAC
+  - override hydra/launcher: submitit_slurm
 
 seed: 42
 name: smacfixed_bookwiki_roberta_${seed}
