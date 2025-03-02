@@ -277,7 +277,7 @@ def main_wrapper(cfg):
         parser = get_args_parser()
         args = parser.parse_args(args)
         print("Launching distributed run using torchrun_run with arguments:")
-        print(" ".join(args))
+        print(args)
         torchrun_run(args)
         sys.exit(0)
     else:
