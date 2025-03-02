@@ -7,7 +7,7 @@ import json
 import os
 import subprocess
 import sys
-from torch.distributed.run import run as torchrun_run
+from torch.distributed.run import run as torchrun_run, get_args_parser
 import torch.nn.functional as F
 from parameterfree.cocob_optimizer import COCOB
 from parameterfree.cocob_trackable_optimizer import COCOBTrackable
@@ -272,7 +272,10 @@ def main_wrapper(cfg):
             "--nproc_per_node=4",
             sys.argv[0],  # current script name
             # You can add additional arguments for your training script here if needed.
+            sys.argv[1:]
         ]
+        parser = get_args_parser()
+        args = parser.parse_args(args)
         print("Launching distributed run using torchrun_run with arguments:")
         print(" ".join(args))
         torchrun_run(args)
