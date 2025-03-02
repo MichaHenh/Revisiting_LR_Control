@@ -271,4 +271,4 @@ def main_wrapper(cfg):
         sys.exit(main(cfg))
 
 if __name__ == "__main__":
-    sys.exit(main())  # pragma: no cover
+    sys.exit(main_wrapper())  # pragma: no cover
