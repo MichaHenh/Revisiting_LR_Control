@@ -15,6 +15,8 @@ from parameterfree.dadaptation import DAdaptAdam
 from parameterfree.prodigy import Prodigy
 from torch.optim import AdamW
 import hydra
+os.environ["WANDB_DISABLED"] = "true"
+
 
 def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001, batch_size=8):
     if os.path.exists(save_path):
