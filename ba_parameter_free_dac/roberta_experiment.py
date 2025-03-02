@@ -15,6 +15,8 @@ from parameterfree.dadaptation import DAdaptAdam
 from parameterfree.prodigy import Prodigy
 from torch.optim import AdamW
 import hydra
+from accelerate import notebook_launcher
+
 os.environ["WANDB_DISABLED"] = "true"
 
 
@@ -231,7 +233,6 @@ def get_optimizer_type(optimizer_type_name):
         
     return AdamW
 
-@hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
 def main(cfg):
     set_seed(cfg.seed)
     print(cfg)
@@ -260,6 +261,14 @@ def main(cfg):
     print("Training complete!")
     
     return trainer.state.log_history[-1]["eval_perplexity" if cfg.use_evaluation else "train_perplexity"]
+
+
+@hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
+def main_wrapper(cfg):
+    if 'manual_ddp' in cfg and cfg.manual_ddp:
+        notebook_launcher(main, args=(cfg,), num_processes=4)
+    else:
+        sys.exit(main(cfg))
 
 if __name__ == "__main__":
     sys.exit(main())  # pragma: no cover
