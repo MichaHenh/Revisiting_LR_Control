@@ -7,6 +7,7 @@ import json
 import os
 import subprocess
 import sys
+from torch.distributed.run import run as torchrun_run
 import torch.nn.functional as F
 from parameterfree.cocob_optimizer import COCOB
 from parameterfree.cocob_trackable_optimizer import COCOBTrackable
@@ -267,21 +268,19 @@ def main(cfg):
 @hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
 def main_wrapper(cfg):
     if "WORLD_SIZE" not in os.environ:
-        # Not in distributed mode, so re-launch using torchrun
-        nproc = "4"  # number of GPUs you want to use
-        cmd = [
-            "torchrun",
-            f"--nproc_per_node={nproc}",
-            sys.argv[0],
-            *sys.argv[1:]  # pass any additional command-line args
+        args = [
+            "--nproc_per_node=4",
+            sys.argv[0],  # current script name
+            # You can add additional arguments for your training script here if needed.
         ]
-        print("Launching with torchrun:", " ".join(cmd))
-        subprocess.run(cmd)
+        print("Launching distributed run using torchrun_run with arguments:")
+        print(" ".join(args))
+        torchrun_run(args)
         sys.exit(0)
     else:
         # Already in distributed mode; execute main training code.
         print("Running in distributed mode!")
-        main(cfg)
+        return main(cfg)
 
 if __name__ == "__main__":
     sys.exit(main_wrapper())  # pragma: no cover
