@@ -1,0 +1,81 @@
+defaults:
+  - _self_
+  - cluster/local
+  - override hydra/sweeper: SMAC
+
+seed: 42
+name: tune_CAWR_libsvm/${dacbench_sgd_config.dataset_name}
+
+libsvm:
+  wine: 300
+  vowel: 900
+  vehicle: 1400
+  pendigits: 11800
+  letter: 23500
+  dna: 3200
+  sensorless: 91500
+  iris: 300
+  aloi: 168800
+
+dacbench_sgd_config:
+    seed: ${seed}
+    use_validation: false
+    use_testing: false
+    num_episodes: 1
+    epoch_mode: False # in SGDWR paper lr is adapted every mini batch
+    cutoff: ${libsvm.${dacbench_sgd_config.dataset_name}} # 50000*0.8=40000 -> 40000/64 = 625 -> 30 episodes = 30*625=18750
+    dataset_name: iris
+    fraction_of_dataset: 1.0
+    custom_model: logistic_reg_${dacbench_sgd_config.dataset_name}
+    instance_set_path: ../../instance_sets/sgd/sgd_train_100instances.csv
+
+hydra:
+  sweeper:
+    smac_class: smac.facade.algorithm_configuration_facade.AlgorithmConfigurationFacade
+    scenario:
+      seed: ${seed}
+      n_trials: 300
+      deterministic: true
+      n_workers: 8
+    smac_kwargs:
+      dask_client:
+        _target_: dask.distributed.Client
+        address: ${create_cluster:${cluster},${hydra.sweeper.scenario.n_workers}}
+      logging_level: 20  # 10 DEBUG, 20 INFO
+    search_space:  # TODO adjust search space
+      hyperparameters:
+        T0:
+          type: uniform_int
+          lower: 0
+          upper: 50
+          default: 10
+          log: false
+        eta_min:
+          type: uniform_float
+          lower: 0
+          upper: 0.005
+          default: 0
+          log: false
+        base_lr:
+          type: uniform_float
+          lower: 0
+          upper: 0.05
+          default: 0.005
+          log: false
+        t_mult:
+          type: uniform_int
+          lower: 1
+          upper: 5
+          default: 2
+          log: false
+  run:
+    dir: results/tune_CAWR_libsvm_${seed}/${dacbench_sgd_config.dataset_name}
+  sweep:
+    dir: results/tune_CAWR_libsvm_${seed}/${dacbench_sgd_config.dataset_name}
+  job:
+    chdir: true
+
+T0: 10
+eta_min: 0
+base_lr: 0.0025
+t_mult: 2
