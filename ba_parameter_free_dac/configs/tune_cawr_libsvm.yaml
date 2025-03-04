@@ -1,7 +1,7 @@
 defaults:
   - _self_
-  - cluster/local
-  - override hydra/sweeper: SMAC
+  - override hydra/sweeper: HyperSMAC
+  - override hydra/launcher: submitit_slurm
 
 seed: 42
 name: tune_CAWR_libsvm/${dacbench_sgd_config.dataset_name}
