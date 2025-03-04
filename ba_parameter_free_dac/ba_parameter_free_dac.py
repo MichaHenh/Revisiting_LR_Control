@@ -62,6 +62,6 @@ class HandleTermination:
 
 def run_experiment(cfg):
     with HandleTermination(os.getcwd()):
-        run(cfg)
+        return run(cfg)
         
 
