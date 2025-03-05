@@ -38,7 +38,10 @@ hydra:
   job:
     chdir: true
   launcher:
-    timeout_min: 720
+    timeout_min: 240
+    nodes: 1
+    partition: ai
+    gres: null
     cpus_per_task: 4
     mem_gb: 8
 
