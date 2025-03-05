@@ -38,6 +38,8 @@ hydra:
   job:
     chdir: true
   launcher:
+    submitit:
+      cpu_bind: none
     timeout_min: 240
     nodes: 1
     partition: ai
