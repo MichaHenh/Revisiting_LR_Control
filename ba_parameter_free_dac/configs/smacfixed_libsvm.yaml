@@ -43,6 +43,7 @@ hydra:
     partition: ai
     gres: null
     cpus_per_task: 4
+    tasks_per_node: 1
     mem_gb: 8
 
 lr: 0.001
