@@ -39,6 +39,8 @@ hydra:
     chdir: true
   launcher:
     timeout_min: 4500
+    partition: ai
+    mem: 8gb
 
 lr: 0.001
 cutoff: 300
