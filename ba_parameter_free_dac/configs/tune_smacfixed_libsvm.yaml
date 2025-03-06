@@ -49,7 +49,7 @@ hydra:
 lr: 0.001
 cutoff: 300
 
-name: SMAC_fixed_libsvm/${dacbench_sgd_config.dataset_name}
+name: tune_SMAC_fixed_libsvm/${dacbench_sgd_config.dataset_name}
 optimizer_type: adam
 agent:
   type: StaticAgent
