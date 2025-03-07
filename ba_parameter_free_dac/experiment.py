@@ -60,7 +60,8 @@ def transform_to_objdict(config):
 
 def setup_env(seed, cfg):
 
-    cfg.cutoff = int(cfg.cutoff)
+    if 'cutoff' in cfg:
+        cfg.cutoff = int(cfg.cutoff)
     # Get benchmark env
     sgd_config = transform_to_objdict(cfg.dacbench_sgd_config)
     sgd_config['seed'] = seed

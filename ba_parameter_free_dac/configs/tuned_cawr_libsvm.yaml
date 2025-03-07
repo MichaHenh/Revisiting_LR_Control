@@ -17,7 +17,6 @@ hydra:
     cpus_per_task: 4
     mem_gb: 6
 
-
 libsvm:
   wine:
     cutoff: 300
