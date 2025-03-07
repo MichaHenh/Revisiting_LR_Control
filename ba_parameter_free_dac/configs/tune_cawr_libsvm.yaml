@@ -1,15 +1,23 @@
 defaults:
-  - _self_
+  - base
   - override hydra/sweeper: HyperSMAC
   - override hydra/launcher: submitit_slurm
 
-seed: 42
-name: tune_CAWR_libsvm/${dacbench_sgd_config.dataset_name}
+libsvm:
+  wine: 300
+  vowel: 900
+  vehicle: 1400
+  pendigits: 11800
+  letter: 23500
+  dna: 3200
+  sensorless: 91500
+  iris: 300
+  aloi: 168800
 
 hydra:
   sweeper:
     n_trials: 50
-    budget_variable: steps
+    budget_variable: cutoff
     sweeper_kwargs:
       optimizer_kwargs:
         smac_facade: 
@@ -21,7 +29,7 @@ hydra:
         scenario:
           n_trials: ${hydra.sweeper.n_trials}
           seed: ${seed}
-          min_budget: 10
+          min_budget: 20
           max_budget: ${libsvm.${dacbench_sgd_config.dataset_name}}
           deterministic: true
           n_workers: 1
@@ -37,7 +45,7 @@ hydra:
         eta_min:
           type: uniform_float
           lower: 0
-          upper: 1
+          upper: 0.005
           default: 0
           log: false
         base_lr:
@@ -53,42 +61,43 @@ hydra:
           default: 2
           log: false
   run:
-    dir: results/tune_CAWR_libsvm_${seed}/${dacbench_sgd_config.dataset_name}
+    dir: results/${name}
   sweep:
-    dir: results/tune_CAWR_libsvm_${seed}/${dacbench_sgd_config.dataset_name}
+    dir: results/${name}
   job:
     chdir: true
   launcher:
-    partition: ai
-    nodes: 1
-    cpus_per_task: 4
     timeout_min: 240
+    nodes: 1
+    partition: ai
+    gres: null
+    cpus_per_task: 4
+    tasks_per_node: 1
     mem_gb: 8
 
 T0: 10
 eta_min: 0
 base_lr: 0.0025
 t_mult: 2
+cutoff: 300
 
-libsvm:
-  wine: 300
-  vowel: 900
-  vehicle: 1400
-  pendigits: 11800
-  letter: 23500
-  dna: 3200
-  sensorless: 91500
-  iris: 300
-  aloi: 168800
+name: tune_SMAC_fixed_libsvm/${dacbench_sgd_config.dataset_name}
+agent:
+  type: CosineAnnealingWRAgent
+  T_0: 10
+  eta_min: 0
+  base_lr: 0.005
+  t_mult: 2
+num_episodes: 1
+optimizer_type: adam
 
 dacbench_sgd_config:
-    seed: ${seed}
-    use_validation: false
-    use_testing: false
-    num_episodes: 1
-    epoch_mode: False # in SGDWR paper lr is adapted every mini batch
-    cutoff: ${libsvm.${dacbench_sgd_config.dataset_name}} # 50000*0.8=40000 -> 40000/64 = 625 -> 30 episodes = 30*625=18750
-    dataset_name: iris
-    fraction_of_dataset: 1.0
-    custom_model: logistic_reg_${dacbench_sgd_config.dataset_name}
-    instance_set_path: ../../instance_sets/sgd/sgd_train_100instances.csv
+  seed: ${seed}
+  epoch_mode: False # in SGDWR paper lr is adapted every mini batch
+  use_validation: false
+  use_testing: false
+  use_validation_as_test: True
+  cutoff: ${cutoff}
+  dataset_name: aloi
+  fraction_of_dataset: 1.0
+  custom_model: logistic_reg_${dacbench_sgd_config.dataset_name}
