@@ -81,7 +81,7 @@ base_lr: 0.0025
 t_mult: 2
 cutoff: 300
 
-name: tune_SMAC_fixed_libsvm/${dacbench_sgd_config.dataset_name}
+name: tune_CAWR_libsvm/${dacbench_sgd_config.dataset_name}
 agent:
   type: CosineAnnealingWRAgent
   T_0: 10
