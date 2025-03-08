@@ -51,7 +51,7 @@ hydra:
 lr: 0.001
 use_evaluation: false
 manual_ddp: true
-nproc: 8
+nproc: 4
 steps: 23000
 
 optimizer:
