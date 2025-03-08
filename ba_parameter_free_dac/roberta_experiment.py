@@ -244,7 +244,7 @@ def main(cfg):
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
     # TODO RESET subset_ratio to 0.16
-    tokenized_datasets = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.02, batch_size=512)
+    tokenized_datasets = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.1, batch_size=512)
 
     print("Setup Model")
     # Set up the 110M parameter RoBERTa model

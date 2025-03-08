@@ -31,7 +31,7 @@ hydra:
         lr:
           type: uniform_float
           lower: 0
-          upper: 0.01
+          upper: 1
           default: 0.001
           log: false
   run:
@@ -51,6 +51,7 @@ hydra:
 lr: 0.001
 use_evaluation: false
 manual_ddp: true
+nproc: 4
 steps: 23000
 
 optimizer:
