@@ -18,6 +18,8 @@ from parameterfree.prodigy import Prodigy
 from torch.optim import AdamW
 import hydra
 from accelerate import notebook_launcher
+import torch.distributed as dist
+import torch.multiprocessing as mp
 
 os.environ["WANDB_DISABLED"] = "true"
 
@@ -266,26 +268,32 @@ def main(cfg):
     
     return trainer.state.log_history[-1]["eval_perplexity" if cfg.use_evaluation else "train_perplexity"]
 
+def main_worker(rank: int, cfg):
+    # Set the CUDA device for this process.
+    torch.cuda.set_device(rank)
+    
+    # Set DDP environment variables
+    os.environ["LOCAL_RANK"] = str(rank)
+    os.environ["RANK"] = str(rank)
+    os.environ["WORLD_SIZE"] = str(cfg.nproc)
+    
+    # Initialize the process group (using NCCL for GPU training)
+    dist.init_process_group(backend="nccl", init_method="env://")
+    
+    # Now run your main training function
+    main(cfg)
+    
+    # Clean up the process group after training
+    dist.destroy_process_group()
 
 @hydra.main(version_base=None, config_path="configs", config_name="adamfixed_bookwiki_roberta")
 def main_wrapper(cfg):
-    if "WORLD_SIZE" not in os.environ:
-        args = [
-            "--nproc_per_node=4",
-            sys.argv[0],  # current script name
-            # You can add additional arguments for your training script here if needed.
-            sys.argv[1:]
-        ]
-        parser = get_args_parser()
-        args = parser.parse_args(args)
-        print("Launching distributed run using torchrun_run with arguments:")
-        print(args)
-        torchrun_run(args)
-        sys.exit(0)
+    if cfg.get("manual_ddp", False):
+        print(f"Launching distributed run with {cfg.nproc} processes.")
+        mp.spawn(main_worker, nprocs=cfg.nproc, args=(cfg,))
     else:
-        # Already in distributed mode; execute main training code.
-        print("Running in distributed mode!")
-        return main(cfg)
+        # Otherwise, run in single-process (non-distributed) mode.
+        main(cfg)
 
 if __name__ == "__main__":
     sys.exit(main_wrapper())  # pragma: no cover
