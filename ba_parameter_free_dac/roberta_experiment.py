@@ -277,6 +277,9 @@ def main_worker(rank: int, cfg):
     os.environ["RANK"] = str(rank)
     os.environ["WORLD_SIZE"] = str(cfg.nproc)
     
+    os.environ.setdefault("MASTER_ADDR", "localhost")
+    os.environ.setdefault("MASTER_PORT", "29500")
+
     # Initialize the process group (using NCCL for GPU training)
     dist.init_process_group(backend="nccl", init_method="env://")
     
