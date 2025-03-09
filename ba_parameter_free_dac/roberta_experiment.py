@@ -18,10 +18,10 @@ def get_free_port():
 def main_wrapper(cfg):
     if cfg.get("manual_ddp", False):
         free_port = str(get_free_port())
-
+        os.chdir('.')
         os.environ["MASTER_ADDR"] = "127.0.0.1"
         os.environ["MASTER_PORT"] = free_port
-        
+
         print(f"Launching distributed run with {cfg.nproc} processes.")
         result = mp.spawn(main_worker, nprocs=cfg.nproc, args=(cfg,), join=True)
         print(result)
