@@ -169,7 +169,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         # RESET to 128, just for testing
         per_device_train_batch_size=64,  # Effective batch size = 64 * 4 GPUs = 256
         # RESET to 256
-        per_device_eval_batch_size=64,
+        per_device_eval_batch_size=48,
         # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
         save_steps=1000,
