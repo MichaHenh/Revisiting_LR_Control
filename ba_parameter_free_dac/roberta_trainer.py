@@ -63,7 +63,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
     # Tokenize datasets
     tokenized_subset = small_dataset.map(tokenize_function, batched=True)
 
-    split_datasets = tokenized_subset.train_test_split(test_size=0.00625)
+    split_datasets = tokenized_subset.train_test_split(test_size=0.005)
 
     # Save tokenized dataset
     print(f"Saving tokenized dataset to {save_path}...")
@@ -245,7 +245,7 @@ def main(cfg):
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
     # TODO RESET subset_ratio to 0.16
-    tokenized_datasets = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.05, batch_size=512)
+    tokenized_datasets = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.075, batch_size=512)
 
     print("Setup Model")
     # Set up the 110M parameter RoBERTa model
