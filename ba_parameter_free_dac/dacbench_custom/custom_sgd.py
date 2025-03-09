@@ -83,6 +83,7 @@ def test(
             output = model(d_data)
             _, preds = output.max(dim=1)
             test_losses.append(loss_function(output, d_target))
+            target = target.to(preds.device)
             test_accuracies.append(torch.sum(preds == target) / len(target))
             i += 1
             if i >= nmb_sets:
@@ -276,7 +277,7 @@ class CustomSGDEnv(SGDEnv):
                 torch.nn.utils.parameters_to_vector(self.model.parameters())
             ).any()
         )
-        self.loss = self.loss.numpy().item()
+        self.loss = self.loss.cpu().numpy().item()
 
         if crashed:
             self._done = True
@@ -310,7 +311,7 @@ class CustomSGDEnv(SGDEnv):
                 ]
                 validation_loss, validation_accuracy = test(*val_args)
 
-                self.validation_loss = validation_loss.mean().detach().numpy()
+                self.validation_loss = validation_loss.mean().detach().cpu().numpy()
                 self.validation_accuracy = validation_accuracy.mean().detach().numpy()
                 if (
                     self.min_validation_loss is None
