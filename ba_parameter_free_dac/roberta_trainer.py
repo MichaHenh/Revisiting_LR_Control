@@ -20,6 +20,7 @@ import hydra
 from accelerate import notebook_launcher
 import torch.distributed as dist
 import torch.multiprocessing as mp
+import socket
 
 os.environ["WANDB_DISABLED"] = "true"
 
@@ -268,6 +269,12 @@ def main(cfg):
     
     return trainer.state.log_history[-1]["eval_perplexity" if cfg.use_evaluation else "train_perplexity"]
 
+def get_free_port():
+    """Find a free port on localhost."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('127.0.0.1', 0))
+        return s.getsockname()[1]
+
 def main_worker(rank: int, cfg):
     # Set the CUDA device for this process.
     torch.cuda.set_device(rank)
@@ -278,7 +285,7 @@ def main_worker(rank: int, cfg):
     os.environ["WORLD_SIZE"] = str(cfg.nproc)
     
     os.environ.setdefault("MASTER_ADDR", "localhost")
-    os.environ.setdefault("MASTER_PORT", "29501")
+    os.environ.setdefault("MASTER_PORT", str(get_free_port()))
 
     # Initialize the process group (using NCCL for GPU training)
     dist.init_process_group(backend="nccl", init_method="env://")
