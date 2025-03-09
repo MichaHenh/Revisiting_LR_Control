@@ -23,6 +23,7 @@ def main_wrapper(cfg):
         os.environ["MASTER_PORT"] = free_port
 
         print(f"Launching distributed run with {cfg.nproc} processes.")
+        mp.set_start_method("spawn", force=True)
         result = mp.spawn(main_worker, nprocs=cfg.nproc, args=(cfg,), join=True)
         print(result)
         return result
