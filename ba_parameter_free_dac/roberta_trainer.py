@@ -169,7 +169,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         # RESET to 128, just for testing
         per_device_train_batch_size=64,  # Effective batch size = 64 * 4 GPUs = 256
         # RESET to 256
-        per_device_eval_batch_size=64,
+        per_device_eval_batch_size=128,
         # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
         save_steps=1000,
@@ -245,7 +245,7 @@ def main(cfg):
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
     # TODO RESET subset_ratio to 0.16
-    tokenized_datasets = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.1, batch_size=512)
+    tokenized_datasets = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.05, batch_size=512)
 
     print("Setup Model")
     # Set up the 110M parameter RoBERTa model
