@@ -9,10 +9,12 @@ from roberta_trainer import main_worker, main
 def main_wrapper(cfg):
     if cfg.get("manual_ddp", False):
         print(f"Launching distributed run with {cfg.nproc} processes.")
-        mp.spawn(main_worker, nprocs=cfg.nproc, args=(cfg,))
+        result = mp.spawn(main_worker, nprocs=cfg.nproc, args=(cfg,), join=True)
+        print(result)
+        return result
     else:
         # Otherwise, run in single-process (non-distributed) mode.
-        main(cfg)
+        return main(cfg)
 
 if __name__ == "__main__":
     sys.exit(main_wrapper())  # pragma: no cover

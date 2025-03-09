@@ -284,7 +284,9 @@ def main_worker(rank: int, cfg):
     dist.init_process_group(backend="nccl", init_method="env://")
     
     # Now run your main training function
-    main(cfg)
+    result = main(cfg)
     
     # Clean up the process group after training
     dist.destroy_process_group()
+    
+    return result
