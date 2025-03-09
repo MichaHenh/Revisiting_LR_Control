@@ -276,7 +276,7 @@ class CustomSGDEnv(SGDEnv):
                 torch.nn.utils.parameters_to_vector(self.model.parameters())
             ).any()
         )
-        self.loss = self.loss.numpy().item()
+        self.loss = self.loss.cpu().numpy().item()
 
         if crashed:
             self._done = True
