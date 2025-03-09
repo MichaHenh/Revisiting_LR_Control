@@ -167,9 +167,9 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         output_dir="./results",
         max_steps=steps,
         # RESET to 128, just for testing
-        per_device_train_batch_size=64,  # Effective batch size = 64 * 4 GPUs = 256
+        per_device_train_batch_size=48,  # Effective batch size = 64 * 4 GPUs = 256
         # RESET to 256
-        per_device_eval_batch_size=64,
+        per_device_eval_batch_size=48,
         # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
         save_steps=1000,
@@ -269,13 +269,6 @@ def main(cfg):
     
     return trainer.state.log_history[-1]["eval_perplexity" if cfg.use_evaluation else "train_perplexity"]
 
-def get_free_port():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('', 0))
-    port = s.getsockname()[1]
-    s.close()
-    return port
-
 def main_worker(rank: int, cfg):
     # Set the CUDA device for this process.
     torch.cuda.set_device(rank)
@@ -285,8 +278,8 @@ def main_worker(rank: int, cfg):
     os.environ["RANK"] = str(rank)
     os.environ["WORLD_SIZE"] = str(cfg.nproc)
     
-    os.environ.setdefault("MASTER_ADDR", "localhost")
-    os.environ.setdefault("MASTER_PORT", str(get_free_port()))
+    # os.environ.setdefault("MASTER_ADDR", "localhost")
+    # os.environ.setdefault("MASTER_PORT", str(get_free_port()))
 
     # Initialize the process group (using NCCL for GPU training)
     dist.init_process_group(backend="nccl", init_method="env://")
