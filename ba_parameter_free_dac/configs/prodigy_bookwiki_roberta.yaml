@@ -10,6 +10,8 @@ optimizer:
   type: ProdigyAdam
   lr: 1
   weight_decay: 0
+  decouple: true
+  betas: [0.9, 0.98]
 
 # TODO needs to be adjusted
 hydra:
