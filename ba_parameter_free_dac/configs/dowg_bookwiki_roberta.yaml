@@ -24,4 +24,8 @@ hydra:
     gres: "gpu:4"
     mem_gb: 256
     nodes: 1
+<<<<<<< HEAD
     tasks_per_node: 8  
+=======
+    tasks_per_node: 8
+>>>>>>> f424494022d883472640f22d54e4ca33e18c3cf0
