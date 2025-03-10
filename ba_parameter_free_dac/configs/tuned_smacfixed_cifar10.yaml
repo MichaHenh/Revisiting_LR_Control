@@ -10,10 +10,11 @@ optimizer_type: adam
 
 hydra:
   launcher:
-    timeout_min: 4500
+    partition: null
+    timeout_min: 300
     gres: "gpu:1"
     nodes: 1
-    mem: 16
+    mem_gb: 16
 
 dacbench_sgd_config:
   cutoff: 300

@@ -172,13 +172,14 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         per_device_eval_batch_size=128,
         # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
+        #gradient_accumulation_steps=16,
         save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
         logging_dir="./logs",
         logging_steps=1,  # Log every step
         evaluation_strategy="steps" if use_evaluation else "no",  # Evaluate every `eval_steps`
         eval_steps=50,  # Evaluate every 10 steps. Maybe we should even evaluate every step but this would make it much more expensive
-        warmup_steps=1000,  # Warmup steps from D-Adaptation
+        warmup_steps=10000,  # Warmup steps from D-Adaptation
         learning_rate=1e-3,  # Scaled learning rate for 8 GPUs
         weight_decay=0.0,  # Weight decay
         fp16=True,  # Enable mixed precision training
@@ -196,10 +197,12 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         kwargs['lr'] = optimizer_cfg.lr
     if 'weight_decay' in optimizer_cfg:
         kwargs['weight_decay'] = optimizer_cfg.weight_decay
+    if 'decouple' in optimizer_cfg:
+        kwargs['decouple'] = optimizer_cfg.decouple
 
     optimizer = (get_optimizer_type(optimizer_cfg.type)(**kwargs, params=model.parameters()) if kwargs is not None else
                 get_optimizer_type(optimizer_cfg.type)(params=model.parameters()))
-    
+    print(optimizer)
     # Initialize the Trainer
     trainer = Trainer(
         model=model,
@@ -265,9 +268,8 @@ def main(cfg):
     # Start training
     print("Starting training...")
     trainer.train()
-    print("Training complete!")
-    
-    return trainer.state.log_history[-1]["eval_perplexity" if cfg.use_evaluation else "train_perplexity"]
+    print("Training complete!") 
+    return trainer.state.log_history[-2]["eval_perplexity" if cfg.use_evaluation else "train_perplexity"]
 
 def main_worker(rank: int, cfg):
     # Set the CUDA device for this process.
