@@ -15,7 +15,7 @@ from parameterfree.STORMplus import STORMplus
 from parameterfree.DoWG import DoWG, CDoWG
 from parameterfree.dadaptation import DAdaptAdam
 from parameterfree.prodigy import Prodigy
-from torch.optim import AdamW
+from torch.optim import AdamW, Adam
 import hydra
 from accelerate import notebook_launcher
 import torch.distributed as dist
@@ -172,7 +172,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         per_device_eval_batch_size=128,
         # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
-        #gradient_accumulation_steps=16,
+        gradient_accumulation_steps=8,
         save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
         logging_dir="./logs",
@@ -199,6 +199,8 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         kwargs['weight_decay'] = optimizer_cfg.weight_decay
     if 'decouple' in optimizer_cfg:
         kwargs['decouple'] = optimizer_cfg.decouple
+    if 'betas' in optimizer_cfg:
+        kwargs['betas'] = optimizer_cfg.betas
 
     optimizer = (get_optimizer_type(optimizer_cfg.type)(**kwargs, params=model.parameters()) if kwargs is not None else
                 get_optimizer_type(optimizer_cfg.type)(params=model.parameters()))
@@ -239,6 +241,8 @@ def get_optimizer_type(optimizer_type_name):
             return CDoWG
         case "adam":
             return AdamW
+        case "pureadam":
+            return Adam
         
     return AdamW
 
@@ -269,7 +273,7 @@ def main(cfg):
     print("Starting training...")
     trainer.train()
     print("Training complete!") 
-    return trainer.state.log_history[-2]["eval_perplexity" if cfg.use_evaluation else "train_perplexity"]
+    return trainer.state.log_history[-1]["train_loss"]
 
 def main_worker(rank: int, cfg):
     # Set the CUDA device for this process.
@@ -292,5 +296,5 @@ def main_worker(rank: int, cfg):
     
     # Clean up the process group after training
     dist.destroy_process_group()
-    
+    print(result)
     return result

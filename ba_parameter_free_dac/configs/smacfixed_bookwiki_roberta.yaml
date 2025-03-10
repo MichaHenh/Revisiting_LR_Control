@@ -11,6 +11,7 @@ hydra:
     n_trials: 50
     budget_variable: steps
     sweeper_kwargs:
+      max_parallelization: 0
       optimizer_kwargs:
         smac_facade: 
           _target_: smac.facade.multi_fidelity_facade.MultiFidelityFacade
@@ -42,11 +43,11 @@ hydra:
     chdir: true
   launcher:
     timeout_min: 240
-    cpus_per_task: 2
+    cpus_per_task: 4
     gres: "gpu:4"
     mem_gb: 256
     nodes: 1
-    tasks_per_node: 8
+    tasks_per_node: 1 
 
 lr: 0.001
 use_evaluation: false
@@ -58,3 +59,4 @@ optimizer:
   type: adam
   lr: ${lr}
   weight_decay: 0
+  betas: [0.9,0.98]

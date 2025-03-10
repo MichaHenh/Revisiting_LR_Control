@@ -19,13 +19,13 @@ def main_wrapper(cfg):
     if cfg.get("manual_ddp", False):
         free_port = str(get_free_port())
         # os.chdir('.')
-        os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "caching_allocator"
+        #os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "caching_allocator"
         os.environ["MASTER_ADDR"] = "127.0.0.1"
         os.environ["MASTER_PORT"] = free_port
 
         print(f"Launching distributed run with {cfg.nproc} processes.")
         # mp.set_start_method("spawn", force=True)
-        result = mp.spawn(main_worker, nprocs=cfg.nproc, args=(cfg,), join=True)
+        result = mp.spawn(main_worker, nprocs=cfg.nproc, args=(cfg,), join=False)
         print(result)
         return result
     else:
