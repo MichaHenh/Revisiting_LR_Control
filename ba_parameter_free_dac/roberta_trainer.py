@@ -216,9 +216,6 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
         callbacks=[TrainPerplexityCallback, EffectiveLrCallback]
     )
-    # trainer.add_callback(TrainPerplexityCallback())
-    # trainer.add_callback(EffectiveLrCallback())
-
 
     return trainer
 
@@ -275,7 +272,7 @@ def main(cfg):
     print("Training complete!") 
     return trainer.state.log_history[-1]["train_loss"]
 
-def main_worker(rank: int, cfg):
+def main_worker(rank: int, cfg, return_dict):
     # Set the CUDA device for this process.
     torch.cuda.set_device(rank)
     
@@ -296,5 +293,4 @@ def main_worker(rank: int, cfg):
     
     # Clean up the process group after training
     dist.destroy_process_group()
-    print(result)
-    return result
+    return_dict[rank] = result
