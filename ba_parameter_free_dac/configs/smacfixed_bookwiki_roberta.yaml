@@ -11,7 +11,7 @@ hydra:
     n_trials: 50
     budget_variable: steps
     sweeper_kwargs:
-      max_parallelization: 0
+      # max_parallelization: 0
       optimizer_kwargs:
         smac_facade: 
           _target_: smac.facade.multi_fidelity_facade.MultiFidelityFacade
