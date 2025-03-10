@@ -57,4 +57,4 @@ steps: 23000
 optimizer:
   type: adam
   lr: ${lr}
-  weight_decay: 0.01
+  weight_decay: 0

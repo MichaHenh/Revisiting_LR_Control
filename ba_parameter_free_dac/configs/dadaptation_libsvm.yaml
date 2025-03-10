@@ -9,11 +9,11 @@ num_episodes: 1
 optimizer_type: DAdaptAdam
 track_effective_lr: true
 
-hydra:
-  launcher:
-    timeout_min: 120
-    cpus_per_task: 4
-    mem_gb: 6
+# hydra:
+#   launcher:
+#     timeout_min: 120
+#     cpus_per_task: 4
+#     mem_gb: 6
 
 dacbench_sgd_config:
   optimizer_params:
