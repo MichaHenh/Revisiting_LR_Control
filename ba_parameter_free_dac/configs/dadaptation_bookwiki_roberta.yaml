@@ -9,7 +9,8 @@ steps: 23000
 optimizer:
   type: DAdaptAdam
   lr: 1
-  weight_decay: 0.01
+  weight_decay: 0
+  decouple: false
 
 # TODO needs to be adjusted
 hydra:
