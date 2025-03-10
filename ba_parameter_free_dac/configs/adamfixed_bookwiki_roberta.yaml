@@ -21,9 +21,10 @@ hydra:
   job:
     chdir: true
   launcher:
-    timeout_min: 4320
+    timeout_min: 360
+    partition: null
     cpus_per_task: 4
     gres: "gpu:4"
     mem_gb: 256
     nodes: 1
-    tasks_per_node: 8  
+    tasks_per_node: 4

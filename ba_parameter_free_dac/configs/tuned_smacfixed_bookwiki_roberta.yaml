@@ -1,16 +1,15 @@
 defaults:
   - override hydra/launcher: submitit_slurm
 
-name: DAdaptAdam_roberta_bookwiki/seed_${seed}
+name: tuned_smacfixed_roberta_bookwiki/seed_${seed}
 seed: 1
 use_evaluation: true
 steps: 23000
 
 optimizer:
-  type: DAdaptAdam
-  lr: 1
+  type: adam
+  lr: 0.6095486659939
   weight_decay: 0
-  decouple: true
   betas: [0.9, 0.98]
 
 # TODO needs to be adjusted
