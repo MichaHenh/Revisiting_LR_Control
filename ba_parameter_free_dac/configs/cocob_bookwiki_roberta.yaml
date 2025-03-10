@@ -8,7 +8,7 @@ steps: 23000
 
 optimizer:
   type: COCOB_trackable
-  weight_decay: 0.01
+  weight_decay: 0
 
 # TODO needs to be adjusted
 hydra:

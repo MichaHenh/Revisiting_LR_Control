@@ -8,6 +8,7 @@ steps: 23000
 
 optimizer:
   type: dowg
+  weight_decay: 0
 
 # TODO needs to be adjusted
 hydra:
