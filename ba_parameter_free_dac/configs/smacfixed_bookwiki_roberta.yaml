@@ -42,7 +42,7 @@ hydra:
     chdir: true
   launcher:
     timeout_min: 240
-    cpus_per_task: 4
+    cpus_per_task: 2
     gres: "gpu:4"
     mem_gb: 256
     nodes: 1
