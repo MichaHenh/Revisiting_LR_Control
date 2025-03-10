@@ -276,6 +276,7 @@ def main_worker(rank: int, cfg):
     torch.cuda.set_device(rank)
     
     # Set DDP environment variables
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"]="expandable_segments:True"
     os.environ["LOCAL_RANK"] = str(rank)
     os.environ["RANK"] = str(rank)
     os.environ["WORLD_SIZE"] = str(cfg.nproc)

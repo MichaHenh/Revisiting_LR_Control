@@ -19,6 +19,7 @@ def main_wrapper(cfg):
     if cfg.get("manual_ddp", False):
         free_port = str(get_free_port())
         # os.chdir('.')
+        os.environ["PYTORCH_CUDA_ALLOC_CONF"]="expandable_segments:True"
         os.environ["MASTER_ADDR"] = "127.0.0.1"
         os.environ["MASTER_PORT"] = free_port
 
