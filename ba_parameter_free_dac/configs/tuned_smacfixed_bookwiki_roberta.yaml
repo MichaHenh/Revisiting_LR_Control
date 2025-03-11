@@ -3,6 +3,8 @@ defaults:
 
 name: tuned_smacfixed_roberta_bookwiki
 seed: 1
+manual_ddp: true
+nproc: 4
 use_evaluation: true
 steps: 23000
 
