@@ -232,7 +232,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         callbacks=[TrainPerplexityCallback, EffectiveLrCallback]
     )
 
-    if optimizer_cfg.get('track', False):
+    if 'track' in optimizer_cfg and optimizer_cfg.track:
         trainer.add_callback(LearningRateTrackerCallback())
 
     return trainer
