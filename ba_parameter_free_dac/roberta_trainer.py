@@ -21,6 +21,8 @@ from accelerate import notebook_launcher
 import torch.distributed as dist
 import torch.multiprocessing as mp
 import socket
+from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
+
 
 os.environ["WANDB_DISABLED"] = "true"
 
@@ -159,6 +161,15 @@ class PerplexityCallback(TrainerCallback):
         with open("perplexity_values.json", "w") as f:
             json.dump(self.perplexity_values, f)  # Save to a JSON file
         return control
+    
+class LearningRateTrackerCallback(TrainerCallback):
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        # Extract the current learning rate from the optimizer's first parameter group.
+        optimizer = kwargs.get("optimizer")
+        if optimizer is not None:
+            current_lr = optimizer.param_groups[0]["lr"]
+            state.log_history[-1]["learning_rate"] = current_lr
+        return control
 
 # Step 5: Set Up Training Arguments and Trainer
 def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True, steps=23000):
@@ -205,17 +216,24 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
     optimizer = (get_optimizer_type(optimizer_cfg.type)(**kwargs, params=model.parameters()) if kwargs is not None else
                 get_optimizer_type(optimizer_cfg.type)(params=model.parameters()))
     print(optimizer)
+    # Assuming training_args is defined before this block
+    scheduler = CosineAnnealingWarmRestarts(optimizer, optimizer_cfg.T_0,
+                                            optimizer_cfg.T_mult, optimizer_cfg.eta_min) if 'cawr' in optimizer_cfg else None
+
     # Initialize the Trainer
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=tokenized_datasets["train"],  # Use the full training dataset
         eval_dataset=tokenized_datasets["test"],  # Use the full validation dataset
-        optimizers=(optimizer, None),  # Use AdamW optimizer
+        optimizers=(optimizer, scheduler),  # Use AdamW optimizer
         compute_metrics=compute_perplexity,  # Compute perplexity during evaluation
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
         callbacks=[TrainPerplexityCallback, EffectiveLrCallback]
     )
+
+    if optimizer_cfg.get('track', False):
+        trainer.add_callback(LearningRateTrackerCallback())
 
     return trainer
 
