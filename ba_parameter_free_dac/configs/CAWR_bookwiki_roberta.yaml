@@ -9,11 +9,14 @@ nproc: 4
 steps: 23000
 
 optimizer:
-  type: CosineAnnealingWRAgent
-  T_0: 10
-  eta_min: 0
-  base_lr: 0.005
-  t_mult: 2
+  lr: 0.001
+  weight_decay: 0
+  betas: [0.9, 0.98]
+  cawr:
+    T_0: 10
+    eta_min: 0
+    base_lr: 0.005
+    t_mult: 2
 
 # TODO needs to be adjusted
 hydra:
