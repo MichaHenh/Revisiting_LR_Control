@@ -1,7 +1,7 @@
 defaults:
   - override hydra/launcher: submitit_slurm
 
-name: DoWG_roberta_bookwiki/seed_${seed}
+name: DoWG_roberta_bookwiki
 seed: 1
 use_evaluation: true
 manual_ddp: true
