@@ -218,7 +218,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
     print(optimizer)
     # Assuming training_args is defined before this block
     scheduler = CosineAnnealingWarmRestarts(optimizer, optimizer_cfg.cawr.T_0,
-                                            optimizer_cfg.cawr.T_mult, optimizer_cfg.cawr.eta_min) if 'cawr' in optimizer_cfg else None
+                                            optimizer_cfg.cawr.t_mult, optimizer_cfg.cawr.eta_min) if 'cawr' in optimizer_cfg else None
 
     # Initialize the Trainer
     trainer = Trainer(
