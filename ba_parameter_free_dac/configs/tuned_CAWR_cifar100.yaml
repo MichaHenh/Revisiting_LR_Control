@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: tuned_CAWR_cifar10
+name: tuned_CAWR_cifar100
 agent:
   type: CosineAnnealingWRAgent
   T_0: 20
