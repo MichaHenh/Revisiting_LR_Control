@@ -168,6 +168,7 @@ class LearningRateTrackerCallback(TrainerCallback):
         optimizer = kwargs.get("optimizer")
         if optimizer is not None:
             current_lr = optimizer.param_groups[0]["lr"]
+            logs["tracked_learning_rate"] = current_lr
             state.log_history[-1]["tracked_learning_rate"] = current_lr
         return control
 
