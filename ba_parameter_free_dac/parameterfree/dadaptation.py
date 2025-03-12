@@ -244,7 +244,7 @@ class DAdaptAdam(torch.optim.Optimizer):
 
                 denom = exp_avg_sq.sqrt().add_(eps)
 
-                self.p_old = p.data.copy().detach()
+                self.p_old = p.data.clone().detach()
                 # Apply weight decay (decoupled variant)
                 if decay != 0 and decouple:
                     p.data.add_(p.data, alpha=-decay * dlr)
