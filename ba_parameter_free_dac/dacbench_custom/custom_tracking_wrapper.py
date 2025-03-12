@@ -13,9 +13,10 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
         - test_accuracy
         - effective_lrs
     """
-    def __init__(self, env, performance_interval=None, track_instance_performance=True, track_effective_lr=False, logger=None):
+    def __init__(self, env, performance_interval=None, track_instance_performance=True, track_effective_lr=False, track_dlr=False, logger=None):
         super().__init__(env, performance_interval, track_instance_performance, logger)
         self.track_effective_lr = track_effective_lr
+        self.track_dlr = track_dlr
 
         self.training_losses = []
         self.avg_training_losses = []
@@ -24,6 +25,7 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
         self.actions = []
         self.step_times = []
         self.effective_lrs = []
+        self.dlrs = []
         
         self.last_step_start = None
         self.average_loss = None
@@ -47,6 +49,8 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
         self.actions.append(action)
         if(self.track_effective_lr and self.optimizer.avg_effective_lr):
             self.effective_lrs.append(self.optimizer.avg_effective_lr.item())
+        if(self.track_dlr and self.optimizer.dlr):
+            self.dlrs.append(self.optimizer.dlr.item())
 
         if terminated or truncated:
             if self.logger is not None:
@@ -86,6 +90,10 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
                     "effective_lrs",
                     self.effective_lrs,
                 )
+                self.logger.log(
+                    "dlrs",
+                    self.dlrs,
+                )
 
             self.training_losses = []
             self.avg_training_losses = []
@@ -93,5 +101,7 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
             self.val_accuracies = []
             self.actions = []
             self.step_times = []
+            self.effective_lrs = []
+            self.dlrs = []
 
         return state, reward, terminated, truncated, info

@@ -8,6 +8,7 @@ agent:
 num_episodes: 1
 optimizer_type: DAdaptAdam
 track_effective_lr: true
+track_dlr: true
 
 # hydra:
 #   launcher:

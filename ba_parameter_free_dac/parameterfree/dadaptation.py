@@ -93,6 +93,7 @@ class DAdaptAdam(torch.optim.Optimizer):
         self.d0 = d0
 
         self.avg_effective_lr = None
+        self.p_old = None
 
         super().__init__(params, defaults)
 
@@ -243,14 +244,16 @@ class DAdaptAdam(torch.optim.Optimizer):
 
                 denom = exp_avg_sq.sqrt().add_(eps)
 
+                self.p_old = p.data.copy().detach()
                 # Apply weight decay (decoupled variant)
                 if decay != 0 and decouple:
                     p.data.add_(p.data, alpha=-decay * dlr)
 
 
                 ### Take step
-                self.avg_effective_lr = exp_avg.div(denom).mean()
+                # self.avg_effective_lr = dlr
                 p.data.addcdiv_(exp_avg, denom, value=-1)
+                self.avg_effective_lr = torch.norm(p.data - self.p_old) / torch.norm(grad)
 
             group['k'] = k + 1
 
