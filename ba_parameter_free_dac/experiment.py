@@ -75,7 +75,8 @@ def setup_env(seed, cfg):
     perf_logger = logger.add_module(CustomTrackingWrapper)
     
     env = CustomTrackingWrapper(env, logger=perf_logger,
-                                track_effective_lr= cfg.track_effective_lr if 'track_effective_lr' in cfg else False)
+                                track_effective_lr= cfg.track_effective_lr if 'track_effective_lr' in cfg else False,
+                                track_dlr=cfg.get('track_dlr'))
     logger.set_env(env)
     logger.set_additional_info(seed=seed)
     

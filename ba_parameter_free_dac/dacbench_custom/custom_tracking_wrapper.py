@@ -50,7 +50,7 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
         if(self.track_effective_lr and self.optimizer.avg_effective_lr):
             self.effective_lrs.append(self.optimizer.avg_effective_lr.item())
         if(self.track_dlr and self.optimizer.dlr):
-            self.dlrs.append(self.optimizer.dlr.item())
+            self.dlrs.append(self.optimizer.dlr)
 
         if terminated or truncated:
             if self.logger is not None:

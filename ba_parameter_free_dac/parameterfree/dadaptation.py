@@ -94,6 +94,7 @@ class DAdaptAdam(torch.optim.Optimizer):
 
         self.avg_effective_lr = None
         self.p_old = None
+        self.dlr = None
 
         super().__init__(params, defaults)
 
@@ -133,7 +134,8 @@ class DAdaptAdam(torch.optim.Optimizer):
             bias_correction = 1
 
         dlr = d*lr*bias_correction
-        
+        self.dlr = dlr
+
         growth_rate = group['growth_rate']
         decouple = group['decouple']
         log_every = group['log_every']
