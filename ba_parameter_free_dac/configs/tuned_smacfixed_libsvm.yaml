@@ -26,7 +26,7 @@ libsvm:
   aloi: 0.2709798509559
 
 dacbench_sgd_config:
-  epoch_mode: False # in SGDWR paper lr is adapted every mini batch
+  epoch_mode: True
   cutoff: 100 
   dataset_name: aloi
   fraction_of_dataset: 1.0
