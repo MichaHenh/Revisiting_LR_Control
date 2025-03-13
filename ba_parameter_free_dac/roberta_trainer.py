@@ -148,6 +148,18 @@ class EffectiveLrCallback(TrainerCallback):
                     # This ensures the custom metric is saved in the final log history.
                     state.log_history[-1]["effective_lr"] = optimizer.avg_effective_lr.item()
         return control
+    
+class DLRCallback(TrainerCallback):
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if logs is not None:
+            optimizer = kwargs.get("optimizer")
+            if hasattr(optimizer, 'dlr') and optimizer.dlr:
+                logs["dlr"] = optimizer.dlr
+
+                if state.log_history:
+                    # This ensures the custom metric is saved in the final log history.
+                    state.log_history[-1]["dlr"] = optimizer.dlr
+        return control
 
 # Step 4: Define a Custom Callback to Save Perplexity Values
 class PerplexityCallback(TrainerCallback):
@@ -230,7 +242,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         optimizers=(optimizer, scheduler),  # Use AdamW optimizer
         compute_metrics=compute_perplexity,  # Compute perplexity during evaluation
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
-        callbacks=[TrainPerplexityCallback, EffectiveLrCallback]
+        callbacks=[TrainPerplexityCallback, EffectiveLrCallback, DLRCallback]
     )
 
     if 'track' in optimizer_cfg and optimizer_cfg.track:

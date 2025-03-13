@@ -60,7 +60,7 @@ class DAdaptAdam(torch.optim.Optimizer):
     def __init__(self, params, lr=1.0, 
                  betas=(0.9, 0.999), eps=1e-8,
                  weight_decay=0, log_every=0,
-                 decouple=False,
+                 decouple=True,
                  use_bias_correction=False,
                  d0=1e-6, growth_rate=float('inf'),
                  fsdp_in_use=False):

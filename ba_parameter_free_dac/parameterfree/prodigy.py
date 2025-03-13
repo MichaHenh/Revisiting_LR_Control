@@ -135,6 +135,7 @@ class Prodigy(torch.optim.Optimizer):
             bias_correction = 1
 
         dlr = d*lr*bias_correction
+        self.dlr = dlr
        
         growth_rate = group['growth_rate']
         decouple = group['decouple']
