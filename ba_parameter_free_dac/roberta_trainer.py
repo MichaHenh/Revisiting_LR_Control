@@ -7,6 +7,7 @@ import json
 import os
 import subprocess
 import sys
+from transformers import DataCollatorForLanguageModeling
 from torch.distributed.run import run as torchrun_run, get_args_parser
 import torch.nn.functional as F
 from parameterfree.cocob_optimizer import COCOB
@@ -30,7 +31,7 @@ os.environ["WANDB_DISABLED"] = "true"
 def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001, batch_size=8):
     if os.path.exists(save_path):
         print(f"Loading tokenized dataset from {save_path}...")
-        return DatasetDict.load_from_disk(save_path)
+        return DatasetDict.load_from_disk(save_path), RobertaTokenizer.from_pretrained("roberta-base")
     start_time = time.time()  # Start timing
 
     # Load full datasets
@@ -58,7 +59,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
     def tokenize_function(examples):
-        tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
+        tokenized = tokenizer(examples["text"], padding=True, truncation=True, max_length=512)
         tokenized["labels"] = tokenized["input_ids"].copy()
         return tokenized
 
@@ -78,7 +79,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
     print(f"⏳ Tokenization Time: {tokenization_time:.2f} seconds")
     print(f"🟡 Subset Dataset: {subset_batches} batches (batch size={batch_size})")
 
-    return split_datasets
+    return split_datasets, tokenizer
 
 # Step 2: Set Up the 110M Parameter RoBERTa Model
 def setup_roberta_model():
@@ -185,7 +186,7 @@ class LearningRateTrackerCallback(TrainerCallback):
         return control
 
 # Step 5: Set Up Training Arguments and Trainer
-def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True, steps=23000):
+def setup_trainer(model, tokenized_datasets, tokenizer, optimizer_cfg, use_evaluation=True, steps=23000):
     # Define training arguments
     training_args = TrainingArguments(
         output_dir="./results",
@@ -196,7 +197,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         per_device_eval_batch_size=128,
         # deepspeed="../deepspeed_config.json",
         # eval_accumulation_steps=64,
-        # gradient_accumulation_steps=8,
+        #gradient_accumulation_steps=8,
         save_steps=1000,
         save_total_limit=1,  # Keep only the last checkpoint
         logging_dir="./logs",
@@ -233,6 +234,12 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
     scheduler = CosineAnnealingWarmRestarts(optimizer, optimizer_cfg.cawr.T_0,
                                             optimizer_cfg.cawr.t_mult, optimizer_cfg.cawr.eta_min) if 'cawr' in optimizer_cfg else None
 
+    data_collator = DataCollatorForLanguageModeling(
+        tokenizer=tokenizer,
+        mlm=True,
+        mlm_probability=0.15
+    )
+
     # Initialize the Trainer
     trainer = Trainer(
         model=model,
@@ -241,6 +248,7 @@ def setup_trainer(model, tokenized_datasets, optimizer_cfg, use_evaluation=True,
         eval_dataset=tokenized_datasets["test"],  # Use the full validation dataset
         optimizers=(optimizer, scheduler),  # Use AdamW optimizer
         compute_metrics=compute_perplexity,  # Compute perplexity during evaluation
+        data_collator=data_collator,
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
         callbacks=[TrainPerplexityCallback, EffectiveLrCallback, DLRCallback]
     )
@@ -280,7 +288,7 @@ def main(cfg):
     print("Load and Tokenize dataset")
     # Load and tokenize the dataset
     # TODO RESET subset_ratio to 0.16
-    tokenized_datasets = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.075, batch_size=512)
+    tokenized_datasets, tokenizer = load_and_tokenize_dataset(save_path='../../tokenized_dataset', subset_ratio=0.01, batch_size=512)
 
     print("Setup Model")
     # Set up the 110M parameter RoBERTa model
@@ -291,7 +299,7 @@ def main(cfg):
 
     print("Setup Trainer")
     # Set up the Trainer
-    trainer = setup_trainer(model, tokenized_datasets, cfg.optimizer, cfg.use_evaluation, int(cfg.steps))
+    trainer = setup_trainer(model, tokenized_datasets, tokenizer, cfg.optimizer, cfg.use_evaluation, int(cfg.steps))
 
     # Add the custom callback to the trainer
     perplexity_callback = PerplexityCallback()
