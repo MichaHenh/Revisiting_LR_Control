@@ -3,6 +3,7 @@ from datasets import load_dataset, concatenate_datasets, DatasetDict
 import time
 import torch
 from transformers import AdamW
+from transformers import DataCollatorForLanguageModeling
 import json
 import os
 import subprocess
@@ -56,7 +57,7 @@ def load_and_tokenize_dataset(save_path='tokenized_dataset', subset_ratio=0.001,
 
     # Load tokenizer
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-
+    
     def tokenize_function(examples):
         tokenized = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=512)
         tokenized["labels"] = tokenized["input_ids"].copy()
