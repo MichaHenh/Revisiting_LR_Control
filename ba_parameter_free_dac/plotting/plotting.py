@@ -68,7 +68,7 @@ def fig2img(fig, figsize=None, dpi=300):
 
     return image
 
-def plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = None, marker: str = None, col: str = None, row: str = None, logx: bool = False, logy: bool = False, xlim: Tuple = None, ylim: Tuple = None, errorbar: str = "ci", xlabel: str = None, ylabel: str = None, aggregation: str = np.mean, save_path: str = None, figsize = None, title: str = None):
+def plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = None, marker: str = None, col: str = None, row: str = None, col_wrap: int = None, logx: bool = False, logy: bool = False, xlim: Tuple = None, ylim: Tuple = None, errorbar: str = "ci", xlabel: str = None, ylabel: str = None, aggregation: str = np.mean, save_path: str = None, figsize = None, title: str = None):
     set_rc_params()
     if aggregation == "iqm":
         aggregation = metrics.aggregate_iqm
@@ -87,7 +87,7 @@ def plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = No
         y = "rank"
         agg_name = "Rank"
 
-    fig = _plot_performance_over_time(data, x, y, hue, marker, col, row, logx, logy, xlim, ylim, errorbar, xlabel, ylabel, aggregation, agg_name)
+    fig = _plot_performance_over_time(data, x, y, hue, marker, col, row, col_wrap, logx, logy, xlim, ylim, errorbar, xlabel, ylabel, aggregation, agg_name)
     
     if figsize:
         fig.set_size_inches(figsize[0], figsize[1], forward=True)
@@ -180,7 +180,7 @@ def plot_final_performance_comparison(data: pd.DataFrame, x: str, y: str, aggreg
         fig.savefig(save_path, bbox_inches="tight", dpi=600)
     return fig2img(fig)
 
-def _plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = None, marker: str = None, col: str = None, row: str = None, logx: bool = False, logy: bool = False, xlim: Tuple = None, ylim: Tuple = None, errorbar: str = "ci", xlabel: str = None, ylabel: str = None, aggregation: Callable = np.mean, agg_name= "Performance", agg_name_short="perf"):
+def _plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = None, marker: str = None, col: str = None, row: str = None, col_wrap: int = None, sharey: bool = True, logx: bool = False, logy: bool = False, xlim: Tuple = None, ylim: Tuple = None, aspect: float = 1.0, errorbar: str = "ci", xlabel: str = None, ylabel: str = None, aggregation: Callable = np.mean, agg_name= "Performance", agg_name_short="perf"):
     fig = plt.figure(dpi = 300, figsize = (4, 4))
     nseeds = len(data["seed"].unique())
     if ylim is None:
@@ -189,8 +189,10 @@ def _plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = N
         xlim = (min(data[x]), max(data[x]))
 
     if col is not None or row is not None:
-        grid = sns.FacetGrid(data=data, col=col, row=row, hue=hue, sharex=True, sharey=True)
-        sets = {"ylim": ylim, "xlim": xlim}
+        grid = sns.FacetGrid(data=data, col=col, row=row, hue=hue, sharex=True, sharey=sharey, col_wrap=col_wrap, aspect=aspect)
+        sets = {"xlim": xlim}
+        if sharey:
+            sets["ylim"] = ylim
         if logx:
             sets["xscale"] = "log"
         if logy:

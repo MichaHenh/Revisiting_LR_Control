@@ -20,7 +20,7 @@ class COCOBTrackable(Optimizer):
         https://arxiv.org/abs/1705.07795
     """
 
-    def __init__(self, params, alpha: float = 100, eps: float = 1e-8, weight_decay: float = 0):
+    def __init__(self, params, lr: float = 1.0, alpha: float = 100, eps: float = 1e-8, weight_decay: float = 0):
         if not 0.0 <= eps:
             raise ValueError("Invalid epsilon value: {}".format(eps))
         if not 0.0 <= alpha:
@@ -29,7 +29,7 @@ class COCOBTrackable(Optimizer):
             raise ValueError(
                 "Invalid weight_decay value: {}".format(weight_decay))
 
-        defaults = dict(weight_decay=weight_decay, lr=1.0)
+        defaults = dict(lr=lr, weight_decay=weight_decay)
         self._alpha = alpha
         self._eps = eps
         self.avg_effective_lr = None
