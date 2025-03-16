@@ -14,8 +14,8 @@ class DoWG(Optimizer):
             numerical stability (default: 1e-8). Also used as the default squared distance estimate.
     """
 
-    def __init__(self, params, eps=1e-8):
-        defaults = dict(eps=eps, lr=1.0)
+    def __init__(self, params, lr: float = 1.0, eps=1e-8):
+        defaults = dict(lr=lr, eps=eps)
         self.eps = eps
         self.avg_effective_lr = None
         super(DoWG, self).__init__(params, defaults)
@@ -26,6 +26,8 @@ class DoWG(Optimizer):
 
         with torch.no_grad():
             device = self.param_groups[0]['params'][0].device
+
+            lr = max(group['lr'] for group in self.param_groups)
 
             # Initialize state variables if needed
             if 'rt2' not in state:
@@ -53,7 +55,7 @@ class DoWG(Optimizer):
                 self.avg_effective_lr = torch.div(rt2, denom)
                 for p in group['params']:
                     gt_hat = rt2 * p.grad.data
-                    p.data.addcdiv_(gt_hat, denom, value=-1.0)
+                    p.data.addcdiv_(gt_hat, denom, value=-lr)
         return None
 
 class CDoWG(Optimizer):
