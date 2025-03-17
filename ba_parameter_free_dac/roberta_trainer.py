@@ -205,11 +205,11 @@ def setup_trainer(model, tokenized_datasets, tokenizer, optimizer_cfg, use_evalu
         logging_steps=1,  # Log every step
         evaluation_strategy="steps" if use_evaluation else "no",  # Evaluate every `eval_steps`
         eval_steps=50,  # Evaluate every 10 steps. Maybe we should even evaluate every step but this would make it much more expensive
-        warmup_steps=10000,  # Warmup steps from D-Adaptation
-        lr_scheduler_type="constant",  # Disables lr decay
+        warmup_steps=50,  # Warmup steps from D-Adaptation
+        lr_scheduler_type="constant_with_warmup",  # Disables lr decay
         learning_rate=1.0,  # Scaled learning rate for 8 GPUs
         weight_decay=0.0,  # Weight decay
-        fp16=True,  # Enable mixed precision training
+        bf16=True,  # Enable mixed precision training
         dataloader_num_workers=2,  # Number of CPU workers for data loading
         # gradient_accumulation_steps=16,
         # load_best_model_at_end=False, 
