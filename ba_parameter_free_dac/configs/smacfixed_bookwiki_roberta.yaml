@@ -54,6 +54,7 @@ use_evaluation: false
 manual_ddp: true
 nproc: 4
 steps: 23000
+warmup: 10000
 
 optimizer:
   type: adam
