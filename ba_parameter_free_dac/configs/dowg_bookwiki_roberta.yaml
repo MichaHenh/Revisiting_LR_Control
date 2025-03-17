@@ -10,6 +10,7 @@ steps: 23000
 
 optimizer:
   type: dowg
+  lr: 0.001
 
 # TODO needs to be adjusted
 hydra:

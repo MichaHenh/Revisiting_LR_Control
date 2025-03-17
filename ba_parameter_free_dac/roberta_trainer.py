@@ -1,4 +1,4 @@
-from transformers import RobertaConfig, RobertaForMaskedLM, RobertaTokenizer, Trainer, TrainingArguments, TrainerCallback, set_seed
+from transformers import RobertaConfig, RobertaForMaskedLM, RobertaTokenizer, Trainer, TrainingArguments, TrainerCallback, set_seed, get_cosine_with_hard_restarts_schedule_with_warmup
 from datasets import load_dataset, concatenate_datasets, DatasetDict
 import time
 import torch
@@ -23,7 +23,7 @@ from accelerate import notebook_launcher
 import torch.distributed as dist
 import torch.multiprocessing as mp
 import socket
-from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
+from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts, SequentialLR, LinearLR
 
 
 os.environ["WANDB_DISABLED"] = "true"
@@ -232,9 +232,18 @@ def setup_trainer(model, tokenized_datasets, tokenizer, optimizer_cfg, use_evalu
     optimizer = (get_optimizer_type(optimizer_cfg.type)(**kwargs, params=model.parameters()) if kwargs is not None else
                 get_optimizer_type(optimizer_cfg.type)(params=model.parameters()))
     print(optimizer)
-    # Assuming training_args is defined before this block
-    scheduler = CosineAnnealingWarmRestarts(optimizer, optimizer_cfg.cawr.T_0,
-                                            optimizer_cfg.cawr.t_mult, optimizer_cfg.cawr.eta_min) if 'cawr' in optimizer_cfg else None
+
+    scheduler = None
+    if 'cawr' in optimizer_cfg:
+        # Assuming training_args is defined before this block
+        cawr = CosineAnnealingWarmRestarts(optimizer, optimizer_cfg.cawr.T_0,
+                                                optimizer_cfg.cawr.t_mult, optimizer_cfg.cawr.eta_min)
+
+        warumup = LinearLR(optimizer, start_factor=0.0, end_factor=optimizer_cfg.lr, total_iters=10000)
+
+        scheduler = SequentialLR(optimizer,
+                            schedulers=[warumup, cawr],
+                            milestones=[10000])
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer,
