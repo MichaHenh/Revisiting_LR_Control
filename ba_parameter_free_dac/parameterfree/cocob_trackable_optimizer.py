@@ -54,7 +54,7 @@ class COCOBTrackable(Optimizer):
             for p in group['params']:
                 if p.grad is None:
                     continue
-                grad = p.grad
+                grad = p.grad * lr
                 if grad.is_sparse:
                     raise RuntimeError('COCOB does not support sparse gradients')
 
@@ -87,8 +87,6 @@ class COCOBTrackable(Optimizer):
 
                 if group['weight_decay'] != 0:
                     grad = grad.add(p, alpha=group['weight_decay'])
-                    
-                grad=grad*lr
 
                 grad_sq_sum.add_(torch.square(grad))
                 # update maximum range of the gradients
