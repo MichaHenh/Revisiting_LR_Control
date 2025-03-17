@@ -310,7 +310,7 @@ def main(cfg):
 
     print("Setup Trainer")
     # Set up the Trainer
-    trainer = setup_trainer(model, tokenized_datasets, tokenizer, cfg.optimizer, cfg.use_evaluation, int(cfg.steps), cfg.get("warmup", 10000))
+    trainer = setup_trainer(model, tokenized_datasets, tokenizer, cfg.optimizer, cfg.use_evaluation, int(cfg.steps), cfg.get("warmup"))
 
     # Add the custom callback to the trainer
     perplexity_callback = PerplexityCallback()
