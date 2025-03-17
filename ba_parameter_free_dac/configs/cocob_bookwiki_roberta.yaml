@@ -10,6 +10,7 @@ steps: 23000
 
 optimizer:
   type: COCOB_trackable
+  lr: 0.001
   weight_decay: 0
 
 # TODO needs to be adjusted
