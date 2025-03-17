@@ -187,7 +187,7 @@ class LearningRateTrackerCallback(TrainerCallback):
         return control
 
 # Step 5: Set Up Training Arguments and Trainer
-def setup_trainer(model, tokenized_datasets, tokenizer, optimizer_cfg, use_evaluation=True, steps=23000):
+def setup_trainer(model, tokenized_datasets, tokenizer, optimizer_cfg, use_evaluation=True, steps=23000, warmup=10000):
     # Define training arguments
     training_args = TrainingArguments(
         output_dir="./results",
@@ -205,7 +205,7 @@ def setup_trainer(model, tokenized_datasets, tokenizer, optimizer_cfg, use_evalu
         logging_steps=1,  # Log every step
         evaluation_strategy="steps" if use_evaluation else "no",  # Evaluate every `eval_steps`
         eval_steps=50,  # Evaluate every 10 steps. Maybe we should even evaluate every step but this would make it much more expensive
-        warmup_steps=50,  # Warmup steps from D-Adaptation
+        warmup_steps=warmup,  # Warmup steps from D-Adaptation
         lr_scheduler_type="linear",  # Disables lr decay
         learning_rate=0.001,  # Scaled learning rate for 8 GPUs
         weight_decay=0.0,  # Weight decay
@@ -239,11 +239,11 @@ def setup_trainer(model, tokenized_datasets, tokenizer, optimizer_cfg, use_evalu
         cawr = CosineAnnealingWarmRestarts(optimizer, optimizer_cfg.cawr.T_0,
                                                 optimizer_cfg.cawr.t_mult, optimizer_cfg.cawr.eta_min)
 
-        warumup = LinearLR(optimizer, start_factor=0.0, end_factor=optimizer_cfg.lr, total_iters=10000)
+        warumup = LinearLR(optimizer, start_factor=0.0, end_factor=optimizer_cfg.lr, total_iters=warmup)
 
         scheduler = SequentialLR(optimizer,
                             schedulers=[warumup, cawr],
-                            milestones=[10000])
+                            milestones=[warmup])
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer,
@@ -310,7 +310,7 @@ def main(cfg):
 
     print("Setup Trainer")
     # Set up the Trainer
-    trainer = setup_trainer(model, tokenized_datasets, tokenizer, cfg.optimizer, cfg.use_evaluation, int(cfg.steps))
+    trainer = setup_trainer(model, tokenized_datasets, tokenizer, cfg.optimizer, cfg.use_evaluation, int(cfg.steps), cfg.get("warmup", 10000))
 
     # Add the custom callback to the trainer
     perplexity_callback = PerplexityCallback()
