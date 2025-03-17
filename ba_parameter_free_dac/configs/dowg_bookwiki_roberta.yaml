@@ -11,7 +11,7 @@ warmup: 10000
 
 optimizer:
   type: dowg
-  lr: 0.001
+  lr: 1.0 # default lr
 
 # TODO needs to be adjusted
 hydra:

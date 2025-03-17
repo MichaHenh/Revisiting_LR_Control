@@ -211,6 +211,7 @@ def setup_trainer(model, tokenized_datasets, tokenizer, optimizer_cfg, use_evalu
         weight_decay=0.0,  # Weight decay
         bf16=True,  # Enable mixed precision training
         dataloader_num_workers=2,  # Number of CPU workers for data loading
+        ddp_find_unused_parameters=False,
         # gradient_accumulation_steps=16,
         # load_best_model_at_end=False, 
         # metric_for_best_model="perplexity",

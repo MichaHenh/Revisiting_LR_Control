@@ -11,7 +11,7 @@ warmup: 10000
 
 optimizer:
   type: COCOB_trackable
-  lr: 0.001
+  lr: 1.0 # default
   weight_decay: 0
 
 # TODO needs to be adjusted
