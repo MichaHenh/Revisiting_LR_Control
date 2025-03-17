@@ -239,10 +239,10 @@ def setup_trainer(model, tokenized_datasets, tokenizer, optimizer_cfg, use_evalu
         cawr = CosineAnnealingWarmRestarts(optimizer, optimizer_cfg.cawr.T_0,
                                                 optimizer_cfg.cawr.t_mult, optimizer_cfg.cawr.eta_min)
 
-        warumup = LinearLR(optimizer, start_factor=0.0, end_factor=optimizer_cfg.lr, total_iters=warmup)
+        warmup_schedule = LinearLR(optimizer, start_factor=optimizer_cfg.lr / warmup, end_factor=optimizer_cfg.lr, total_iters=warmup)
 
         scheduler = SequentialLR(optimizer,
-                            schedulers=[warumup, cawr],
+                            schedulers=[warmup_schedule, cawr],
                             milestones=[warmup])
 
     data_collator = DataCollatorForLanguageModeling(
