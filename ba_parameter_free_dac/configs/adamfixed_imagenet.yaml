@@ -1,0 +1,17 @@
+defaults:
+  - base
+  - cluster/gpu_kisski
+
+name: Adam_fixed_imagenet
+optimizer_type: adam
+agent:
+  type: StaticAgent
+  lr: 0.001
+num_episodes: 1
+
+dacbench_sgd_config:
+  cutoff: 100
+  device: cuda
+  dataset_name: IMAGENET
+  fraction_of_dataset: 1.0
+  custom_model: efficientnet_b4
