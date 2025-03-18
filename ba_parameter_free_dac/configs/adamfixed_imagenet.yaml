@@ -1,6 +1,5 @@
 defaults:
   - base
-  - cluster/gpu_kisski
 
 name: Adam_fixed_imagenet
 optimizer_type: adam
