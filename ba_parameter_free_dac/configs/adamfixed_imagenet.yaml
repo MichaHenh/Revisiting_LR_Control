@@ -15,3 +15,11 @@ dacbench_sgd_config:
   dataset_name: IMAGENET
   fraction_of_dataset: 1.0
   custom_model: efficientnet_b4
+
+hydra:
+  launcher:
+    partition: null
+    timeout_min: 300
+    gres: "gpu:1"
+    nodes: 1
+    mem_gb: 16
