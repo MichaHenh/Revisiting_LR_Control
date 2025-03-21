@@ -28,7 +28,6 @@ class DoWG(Optimizer):
             device = self.param_groups[0]['params'][0].device
 
             lr = max(group['lr'] for group in self.param_groups)
-            grad = p.grad * lr
 
             # Initialize state variables if needed
             if 'rt2' not in state:
@@ -43,8 +42,8 @@ class DoWG(Optimizer):
                 group_state = state[idx]
                 if 'x0' not in group_state:
                     group_state['x0'] = [torch.clone(p) for p in group["params"]]
-                    
-                grad_sq_norm += torch.stack([(grad ** 2).sum() for p in group["params"]]).sum()
+
+                grad_sq_norm += torch.stack([((lr * p.grad) ** 2).sum() for p in group["params"]]).sum()
                 curr_d2 += torch.stack([((p - p0) ** 2).sum() for p, p0 in zip(group["params"], group_state['x0'])]).sum()
             
             state['rt2'] = torch.max(state['rt2'], curr_d2)
@@ -55,7 +54,7 @@ class DoWG(Optimizer):
                 denom = torch.sqrt(vt).add_(group['eps'])
                 self.avg_effective_lr = torch.div(rt2, denom)
                 for p in group['params']:
-                    gt_hat = rt2 * grad
+                    gt_hat = rt2 * p.grad * lr
                     p.data.addcdiv_(gt_hat, denom, value=-1.0)
         return None
 
