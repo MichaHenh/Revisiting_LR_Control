@@ -56,6 +56,7 @@ hydra:
   job:
     chdir: true
   launcher:
+    partition: null
     timeout_min: 240
     cpus_per_task: 4
     gres: "gpu:4"
