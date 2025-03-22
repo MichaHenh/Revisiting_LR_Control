@@ -212,8 +212,8 @@ def get_model(name):
             return WideResNet(16, 10, 2, 0.3)
         case "densenet121":
             return DenseNet(Bottleneck, [6,12,24,16], growth_rate=12)
-        case "efficientnet_b4":
-            return timm.create_model('efficientnet_b4', pretrained=False)
+        case "vit_large_patch14_224":
+            return timm.create_model('vit_large_patch14_224', pretrained=False, num_classes=47)
         case "logistic_reg_iris":
             return LogisticRegression(4, 3)
         case "logistic_reg_sensorless":

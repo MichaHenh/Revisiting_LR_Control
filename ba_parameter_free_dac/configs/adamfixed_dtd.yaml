@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: Adam_fixed_imagenet
+name: Adam_fixed_dtd
 optimizer_type: adam
 agent:
   type: StaticAgent
@@ -11,9 +11,9 @@ num_episodes: 1
 dacbench_sgd_config:
   cutoff: 100
   device: cuda
-  dataset_name: IMAGENET
+  dataset_name: DTD
   fraction_of_dataset: 1.0
-  custom_model: efficientnet_b4
+  custom_model: vit_large_patch14_224
 
 hydra:
   launcher:
