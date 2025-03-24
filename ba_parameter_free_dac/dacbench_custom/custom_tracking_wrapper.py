@@ -78,12 +78,12 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
                     "validation_accuracies",
                     self.val_accuracies,
                 )
-                if self.test_losses:
+                if self.test_losses is not None:
                     self.logger.log(
                         "test_loss",
                         self.test_losses.mean().item(),
                     )
-                if self.test_accuracies:
+                if self.test_accuracies is not None:
                     self.logger.log(
                         "test_accuracy",
                         self.test_accuracies.mean().item(),
