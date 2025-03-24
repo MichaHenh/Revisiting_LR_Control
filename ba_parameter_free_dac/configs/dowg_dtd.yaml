@@ -1,10 +1,9 @@
 defaults:
   - base
 
-name: COCOB_dtd
+name: DoWG_dtd
 agent:
   type: StaticAgent
-  lr: 1
 num_episodes: 1
 optimizer_type: dowg
 track_effective_lr: true
