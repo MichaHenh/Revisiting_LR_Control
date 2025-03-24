@@ -111,9 +111,9 @@ def run_epoch(model, loss_function, loader, optimizer, device="cpu"):
     last_loss = None
     running_loss = 0
     model.train()
-    
+    print(f"Started epoch on {device} with {len(loader)}")
     for data, target in loader:
-        # print("iteration")
+        #print("iteration")
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)

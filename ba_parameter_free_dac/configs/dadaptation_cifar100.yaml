@@ -13,7 +13,7 @@ track_dlr: true
 hydra:
   launcher:
     partition: null
-    timeout_min: 300
+    timeout_min: 360
     gres: "gpu:1"
     nodes: 1
     mem_gb: 16

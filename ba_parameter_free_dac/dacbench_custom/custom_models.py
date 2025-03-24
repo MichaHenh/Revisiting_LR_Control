@@ -214,6 +214,12 @@ def get_model(name):
             return DenseNet(Bottleneck, [6,12,24,16], growth_rate=12)
         case "vit_large_patch14_224":
             return timm.create_model('vit_large_patch14_224', pretrained=False, num_classes=47)
+        case "vit_base_patch16_224":
+            return timm.create_model('vit_base_patch16_224', pretrained=False, num_classes=47)
+        case "vit_tiny_patch16_224":
+            return timm.create_model('vit_tiny_patch16_224', pretrained=False, num_classes=47)
+        case "efficientnet_b2":
+            return timm.create_model('efficientnet_b2', pretrained=False, num_classes=47)
         case "logistic_reg_iris":
             return LogisticRegression(4, 3)
         case "logistic_reg_sensorless":
