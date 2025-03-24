@@ -4,11 +4,13 @@ defaults:
 name: DoWG_dtd
 agent:
   type: StaticAgent
+  lr: 1
 num_episodes: 1
 optimizer_type: dowg
 track_effective_lr: true
 
 dacbench_sgd_config:
+  optimizer_params: null
   cutoff: 100
   device: cuda
   dataset_name: DTD

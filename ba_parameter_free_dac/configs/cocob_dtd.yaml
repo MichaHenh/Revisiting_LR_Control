@@ -10,6 +10,7 @@ optimizer_type: COCOB_trackable
 track_effective_lr: true
 
 dacbench_sgd_config:
+  optimizer_params: null
   cutoff: 100
   device: cuda
   dataset_name: DTD
