@@ -83,10 +83,11 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
                         "test_loss",
                         self.test_losses.mean().item(),
                     )
-                self.logger.log(
-                    "test_accuracy",
-                    self.test_accuracies.mean().item(),
-                )
+                if self.test_accuracies:
+                    self.logger.log(
+                        "test_accuracy",
+                        self.test_accuracies.mean().item(),
+                    )
                 self.logger.log(
                     "effective_lrs",
                     self.effective_lrs,
