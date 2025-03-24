@@ -1,12 +1,13 @@
 defaults:
   - base
 
-name: Adam_fixed_dtd
-optimizer_type: adam
+name: COCOB_dtd
 agent:
   type: StaticAgent
-  lr: 0.001
+  lr: 1
 num_episodes: 1
+optimizer_type: dowg
+track_effective_lr: true
 
 dacbench_sgd_config:
   cutoff: 100

@@ -1,12 +1,14 @@
 defaults:
   - base
 
-name: Adam_fixed_dtd
-optimizer_type: adam
+name: prodigy_dtd
 agent:
   type: StaticAgent
-  lr: 0.001
+  lr: 1
 num_episodes: 1
+optimizer_type: ProdigyAdam
+track_effective_lr: true
+track_dlr: true
 
 dacbench_sgd_config:
   cutoff: 100

@@ -16,7 +16,7 @@ dacbench_sgd_config:
   device: cuda
   dataset_name: DTD
   fraction_of_dataset: 1.0
-  custom_model: vit_large_patch14_224
+  custom_model: vit_tiny_patch16_224
 
 hydra:
   launcher:
