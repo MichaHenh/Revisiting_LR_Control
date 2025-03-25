@@ -19,7 +19,7 @@ hydra:
           n_trials: ${hydra.sweeper.n_trials}
           seed: ${seed}
           min_budget: 5
-          max_budget: 100
+          max_budget: 300
           deterministic: true
           n_workers: 1
           output_directory: ${hydra.sweep.dir}

@@ -12,7 +12,7 @@ track_dlr: true
 
 
 dacbench_sgd_config:
-  cutoff: 100
+  cutoff: 300
   device: cuda
   dataset_name: DTD
   fraction_of_dataset: 1.0
