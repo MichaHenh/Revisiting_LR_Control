@@ -389,6 +389,7 @@ class CustomSGDEnv(SGDEnv):
         ###
         self.loss = 0
         self.test_losses = None
+        self.test_accuracies = None
 
         self.validation_loss = 0
         self.validation_accuracy = 0
