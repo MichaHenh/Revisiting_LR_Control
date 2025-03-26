@@ -110,8 +110,8 @@ def run(cfg):
         incumbent = run_smac(cfg.smac, cfg.seed)
         env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, StaticAgent(env, [incumbent]), num_episodes=cfg.num_episodes, logger=logger)
-        return -env.episode_performance
+        return -env.overall_performance[0]
     else:
         env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, get_agent(cfg.agent, env, cfg.seed), num_episodes=cfg.num_episodes, logger=logger)
-        return -env.episode_performance
+        return -env.overall_performance[0]
