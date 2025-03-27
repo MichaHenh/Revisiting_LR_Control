@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: Adam_fixed_dtd
+name: tuned_smacfixed_dtd
 optimizer_type: adam
 agent:
   type: StaticAgent
