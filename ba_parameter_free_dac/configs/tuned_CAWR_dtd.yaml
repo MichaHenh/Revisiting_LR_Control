@@ -1,7 +1,7 @@
 defaults:
   - base
 
-name: CAWR_dtd
+name: tuned_CAWR_dtd
 agent:
   type: CosineAnnealingWRAgent
   T_0: 9
