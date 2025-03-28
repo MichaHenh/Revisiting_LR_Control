@@ -2,6 +2,7 @@ from dacbench.runner import run_benchmark
 from dacbench.agents import StaticAgent
 from dacbench.logger import Logger
 from pathlib import Path
+import math
 
 from parameterfree.cocob_optimizer import COCOB
 from parameterfree.cocob_trackable_optimizer import COCOBTrackable
@@ -110,8 +111,8 @@ def run(cfg):
         incumbent = run_smac(cfg.smac, cfg.seed)
         env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, StaticAgent(env, [incumbent]), num_episodes=cfg.num_episodes, logger=logger)
-        return -env.overall_performance[0]
+        return 100 if math.isnan(env.loss) else env.loss
     else:
         env, logger = setup_env(cfg.seed, cfg)
         run_benchmark(env, get_agent(cfg.agent, env, cfg.seed), num_episodes=cfg.num_episodes, logger=logger)
-        return -env.overall_performance[0]
+        return 100 if math.isnan(env.loss) else env.loss
