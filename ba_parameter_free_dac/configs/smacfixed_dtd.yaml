@@ -28,7 +28,7 @@ hydra:
         lr:
           type: uniform_float
           lower: 0
-          upper: 1
+          upper: 0.1
           default: 0.001
           log: false
   run:
