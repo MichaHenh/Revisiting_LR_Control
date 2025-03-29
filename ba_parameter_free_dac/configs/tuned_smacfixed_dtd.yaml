@@ -5,7 +5,7 @@ name: tuned_smacfixed_dtd
 optimizer_type: adam
 agent:
   type: StaticAgent
-  lr: 0.0481590331201
+  lr: 0.000880923938 
 num_episodes: 1
 
 dacbench_sgd_config:

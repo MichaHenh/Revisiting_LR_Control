@@ -4,10 +4,10 @@ defaults:
 name: tuned_CAWR_dtd
 agent:
   type: CosineAnnealingWRAgent
-  T_0: 9
-  eta_min: 0153045402904
-  base_lr: 0.0030792558219 
-  t_mult: 4
+  T_0: 40
+  eta_min: 0.0012426552362
+  base_lr: 0.0048815239592  
+  t_mult: 1
 num_episodes: 1
 optimizer_type: adam
 

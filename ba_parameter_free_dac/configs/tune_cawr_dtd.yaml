@@ -18,7 +18,7 @@ hydra:
         scenario:
           n_trials: ${hydra.sweeper.n_trials}
           seed: ${seed}
-          min_budget: 29 # one epoch
+          min_budget: 145 # five epoch
           max_budget: 8700
           deterministic: true
           n_workers: 1
@@ -40,7 +40,7 @@ hydra:
         base_lr:
           type: uniform_float
           lower: 0
-          upper: 1
+          upper: 0.1
           default: 0.005
           log: false
         t_mult:
