@@ -68,7 +68,7 @@ def fig2img(fig, figsize=None, dpi=300):
 
     return image
 
-def plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = None, marker: str = None, col: str = None, row: str = None, col_wrap: int = None, logx: bool = False, logy: bool = False, xlim: Tuple = None, ylim: Tuple = None, errorbar: str = "ci", xlabel: str = None, ylabel: str = None, aggregation: str = np.mean, save_path: str = None, figsize = None, title: str = None):
+def plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = None, marker: str = None, col: str = None, row: str = None, col_wrap: int = None, sharey: bool = True, logx: bool = False, logy: bool = False, xlim: Tuple = None, ylim: Tuple = None, aspect: float = 1.0, errorbar: str = "ci", xlabel: str = None, ylabel: str = None, aggregation: str = np.mean, palette = None, save_path: str = None, figsize = None, title: str = None):
     set_rc_params()
     if aggregation == "iqm":
         aggregation = metrics.aggregate_iqm
@@ -87,7 +87,7 @@ def plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = No
         y = "rank"
         agg_name = "Rank"
 
-    fig = _plot_performance_over_time(data, x, y, hue, marker, col, row, col_wrap, logx, logy, xlim, ylim, errorbar, xlabel, ylabel, aggregation, agg_name)
+    fig = _plot_performance_over_time(data, x, y, hue, marker, col, row, col_wrap, sharey, logx, logy, xlim, ylim, aspect, errorbar, xlabel, ylabel, aggregation, palette, agg_name)
     
     if figsize:
         fig.set_size_inches(figsize[0], figsize[1], forward=True)
@@ -180,7 +180,7 @@ def plot_final_performance_comparison(data: pd.DataFrame, x: str, y: str, aggreg
         fig.savefig(save_path, bbox_inches="tight", dpi=600)
     return fig2img(fig)
 
-def _plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = None, marker: str = None, col: str = None, row: str = None, col_wrap: int = None, sharey: bool = True, logx: bool = False, logy: bool = False, xlim: Tuple = None, ylim: Tuple = None, aspect: float = 1.0, errorbar: str = "ci", xlabel: str = None, ylabel: str = None, aggregation: Callable = np.mean, agg_name= "Performance", agg_name_short="perf"):
+def _plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = None, marker: str = None, col: str = None, row: str = None, col_wrap: int = None, sharey: bool = True, logx: bool = False, logy: bool = False, xlim: Tuple = None, ylim: Tuple = None, aspect: float = 1.0, errorbar: str = "ci", xlabel: str = None, ylabel: str = None, aggregation: Callable = np.mean, palette = None,agg_name= "Performance", agg_name_short="perf"):
     fig = plt.figure(dpi = 300, figsize = (4, 4))
     nseeds = len(data["seed"].unique())
     if ylim is None:
@@ -202,9 +202,10 @@ def _plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = N
         grid.fig.suptitle(f"{agg_name} over Time (num_seeds={nseeds})")
         grid.set_axis_labels(xlabel, ylabel)
         grid.add_legend()
+        return grid
     else:
         ax = fig.add_subplot(1, 1, 1)
-        ax = sns.lineplot(data=data, x=x, y=y, ax=ax, marker=marker, hue=hue, errorbar=errorbar, estimator=aggregation,palette=sns.color_palette('colorblind', as_cmap = True))
+        ax = sns.lineplot(data=data, x=x, y=y, ax=ax, marker=marker, hue=hue, errorbar=errorbar, estimator=aggregation,palette=palette if palette is not None else sns.color_palette('colorblind', as_cmap = True))
         if logy:
             ax.set_yscale("log")
         if logx:
@@ -216,7 +217,7 @@ def _plot_performance_over_time(data: pd.DataFrame, x: str, y: str, hue: str = N
         ax.set_ylabel(ylabel)
         sns.move_legend(ax, "lower center", bbox_to_anchor=(.5, 1.1), ncol=5, title=None, frameon=False)
         fig.set_tight_layout(True)
-    return fig
+        return fig
 
 def plot_deepcave(plugin, run_path=None, run_object=None, kwargs={}, budget_id=None, objective_id=None, save_path=None):
     from deepcave.runs.converters.deepcave import DeepCAVERun
