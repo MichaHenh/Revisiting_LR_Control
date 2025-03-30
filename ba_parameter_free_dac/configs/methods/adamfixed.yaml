@@ -1,7 +1,3 @@
-defaults:
-  - base
-
-name: Adam_fixed_cifar100
 agent:
   type: StaticAgent
   lr: 0.001
