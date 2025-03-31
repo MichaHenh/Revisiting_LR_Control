@@ -194,7 +194,7 @@ class CustomSGDEnv(SGDEnv):
         torch.manual_seed(config['seed'])
         
         # START of SGDEnv init
-        AbstractMADACEnv.__init__(self, config)
+        super().__init__(config)
         self.epoch_mode = config.get("epoch_mode", True)
         self.device = config.get("device")
 
