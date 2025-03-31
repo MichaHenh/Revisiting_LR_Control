@@ -3,3 +3,4 @@ agent:
   lr: 0.001
 num_episodes: 1
 optimizer_type: adam
+method_name: adamfixed

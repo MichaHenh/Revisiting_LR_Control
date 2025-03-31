@@ -1,8 +1,32 @@
-# Comparing Parameter-Free Optimization and Black-Box Optmization for Dynamic Algorithm Configuration
-Setting hyperparameters of gradient-based optimization algorithms such as SGD and Adam is crucial to achieve the best performance. Hyperparameter Optimization (HPO) and Dynamic Algorithm Configuration (DAC) succeed at this task. However, this comes at a substantial resource cost. Therefore, *parameter-free* optimizers (PFO) - aiming to eliminate hyperparameters while still ensuring adaptivity and close-to-optimal performance - pose an attractive alternative. In this thesis, we compare two DAC approaches with two PFO approaches on standard benchmark data sets MNIST, FashionMNIST, CIFAR-10, and CIFAR-100. Furthermore, we show that in this setting, DAC generally outperforms PFO by up to 7% in test accuracy.
+# Revisiting Learning Rate Control
+The learning rate is one of the most important hyperparameters in deep learning, and how to control it is an active area within both AutoML and deep learning research. 
+Approaches for learning rate control span from classic optimization to online scheduling based on gradient statistics. 
+This paper compares paradigms to assess the current state of learning rate control. 
+We find that methods from multi-fidelity hyperparameter optimization, fixed-hyperparameter schedules, and hyperparameter-free learning often perform very well on selected deep learning tasks but are not reliable across settings. 
+This highlights the need for algorithm selection methods in learning rate control, which have been neglected so far by both the AutoML and deep learning communities.
+We also observe a trend of hyperparameter optimization approaches becoming less effective as models and tasks grow in complexity, even when combined with multi-fidelity approaches for more expensive model trainings. 
+A focus on more relevant test tasks and new promising directions like finetunable methods and meta-learning will enable the AutoML community to significantly strengthen its impact on this crucial factor in deep learning.
 
 ## Installation
-In order to run parts of this Bachelor's Thesis, you have to create a conda environment and install SMAC and DACBench (dev branch)
+We recommend installing the dependencies in a conda environemnt.
+```
+conda create -n lrcontrol python=3.10
+conda activate lrcontrol
+```
+The logistic regression and computer vision experiments require the development version of DACBench.
+```
+git clone https://github.com/automl/DACBench.git
+git checkout development
+cd DACBench
+pip install .[sgd]
+```
+Additionally, you need to replace the env_util.py in your dacbench installation folder in the conda environment with this file.
+For experiments including SMAC, you need to install it:
+```
+pip install smac
+```
+
+## Minimal Example
 
 ## Experiments
 All experiments described in this Bachelor's Thesis have a corresponding config file. These can be found [here](ba_parameter_free_dac/configs/). E.g. to execute default AdamW on MNIST for seeds 1,2 and 3, run the following:

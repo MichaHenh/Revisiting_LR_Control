@@ -1,9 +1,6 @@
 defaults:
   - base
+  - datasets/cifar100
+  - methods/adamfixed
 
 name: Adam_fixed_cifar100
-agent:
-  type: StaticAgent
-  lr: 0.001
-num_episodes: 1
-optimizer_type: adam
