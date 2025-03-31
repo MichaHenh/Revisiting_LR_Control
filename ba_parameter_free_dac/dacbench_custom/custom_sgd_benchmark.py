@@ -59,7 +59,7 @@ class CustomSGDBenchmark(SGDBenchmark):
             keyword = "test_set"
         else:
             #path = Path(dacbench.envs.__file__).resolve().parent / self.config.instance_set_path
-            path = Path(dacbench.envs.__file__).resolve().parent /'../instance_sets/sgd/sgd_cifar10_variations_train.csv' 
+            path = Path(dacbench.envs.__file__).resolve().parent /'../instance_sets/sgd/sgd_train_100instances.csv' 
             keyword = "instance_set"
         self.config[keyword] = {}
         with open(path) as fh:
