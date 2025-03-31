@@ -4,9 +4,9 @@ defaults:
 name: tuned_CAWR_cifar100
 agent:
   type: CosineAnnealingWRAgent
-  T_0: 20
-  base_lr: 0.001280205300335804
-  eta_min: 0.0009731469126100317
+  T_0: 39
+  base_lr: 0.0019257718469
+  eta_min: 0.0049729217242
   t_mult: 2
 num_episodes: 1
 optimizer_type: adam
