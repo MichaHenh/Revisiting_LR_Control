@@ -17,7 +17,7 @@ The logistic regression and computer vision experiments require the development 
 ```
 pip install dacbench torch torchvision hydra-core timm download smac ioh rliable
 ```
-To make DACBench compatible with additional datasets, you need to copy [envs](ba_parameter_free_dac/dacbench_custom/envs/) and [instance_sets](ba_parameter_free_dac/dacbench_custom/instance_sets/) into your dacbench installation folder. The path will look something like this "/.conda/envs/lrcontrol/lib/python3.10/site-packages/dacbench/".
+To make DACBench compatible with additional datasets, you need to copy the folders [envs](ba_parameter_free_dac/dacbench_custom/envs/) and [instance_sets](ba_parameter_free_dac/dacbench_custom/instance_sets/) into your dacbench installation folder. The path will look something like this "/.conda/envs/lrcontrol/lib/python3.10/site-packages/dacbench/".
 
 ## Minimal Example
 The smallest example we provide is running Adam on the LIBSVM dataset iris.
