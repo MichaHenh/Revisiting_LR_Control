@@ -13,21 +13,21 @@ We recommend installing the dependencies in a conda environemnt.
 conda create -n lrcontrol python=3.10
 conda activate lrcontrol
 ```
-The logistic regression and computer vision experiments require the development version of DACBench.
+The logistic regression and computer vision experiments require the following packages:
 ```
 pip install dacbench torch torchvision hydra-core timm download smac ioh rliable
 ```
 To make DACBench compatible with additional datasets, you need to copy the folders [envs](ba_parameter_free_dac/dacbench_custom/envs/) and [instance_sets](ba_parameter_free_dac/dacbench_custom/instance_sets/) into your dacbench installation folder. The path will look something like this "/.conda/envs/lrcontrol/lib/python3.10/site-packages/dacbench/".
 
 ## Minimal Example
-The smallest example we provide is running Adam on the LIBSVM dataset iris.
+The smallest example we provide is running Adam on the LIBSVM dataset iris:
 ```
 cd ba_ba_parameter_free_dac
 python cli.py --config-name=adamfixed_libsvm dacbench_sgd_config.dataset_name=iris seed=1,2,3 -m
 ```
 
 ## Experiments
-All experiments described in this paper have a corresponding config file. These can be found [here](ba_parameter_free_dac/configs/). The runs are executed either via [cli.py](ba_parameter_free_dac/cli.py) (for computer vision and logistic regression) or [roberta_experiment.py](ba_parameter_free_dac/roberta_experiment.py) (for nlp). E.g. to execute D-Adaptation on CIFAR-10 for seeds 1,2 and 3, run the following:
+All experiments described in this paper have a corresponding config file. These can be found [here](ba_parameter_free_dac/configs/). The runs are executed either via [cli.py](ba_parameter_free_dac/cli.py) (for computer vision and logistic regression) or [roberta_experiment.py](ba_parameter_free_dac/roberta_experiment.py) (for nlp).E.g. to execute D-Adaptation on CIFAR-10 for seeds 1,2 and 3, run the following:
 ```
 python cli.py --config-name=dadaptation_cifar10 seed=1,2,3 -m
 ```
@@ -35,3 +35,4 @@ The natural language processing experiments can be started like this:
 ```
 python roberta_experiment.py --config-name=dadaptation_bookwiki_roberta seed=1 -m
 ```
+Depending on whether you are running the job locally or on a SLURM cluster or if you want to use GPUs, you might need to choose cluster/local or cluster/cpu in [base.yaml](ba_parameter_free_dac/configs/base.yaml) and adjust wall times and resource allocations to fit your environment.
