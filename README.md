@@ -22,7 +22,7 @@ To make DACBench compatible with additional datasets, you need to copy the folde
 ## Minimal Example
 The smallest example we provide is running Adam on the LIBSVM dataset iris:
 ```
-cd ba_ba_parameter_free_dac
+cd ba_parameter_free_dac
 python cli.py --config-name=adamfixed_libsvm dacbench_sgd_config.dataset_name=iris seed=1,2,3 -m
 ```
 
