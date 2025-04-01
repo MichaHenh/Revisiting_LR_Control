@@ -33,5 +33,5 @@ python cli.py --config-name=dadaptation_cifar10 seed=1,2,3 -m
 ```
 The natural language processing experiments can be started like this:
 ```
-python roberta_experiment.py --config-name=dadaptation_roberta_bookwiki seed=1 -m
+python roberta_experiment.py --config-name=dadaptation_bookwiki_roberta seed=1 -m
 ```
