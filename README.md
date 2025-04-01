@@ -15,34 +15,23 @@ conda activate lrcontrol
 ```
 The logistic regression and computer vision experiments require the development version of DACBench.
 ```
-git clone https://github.com/automl/DACBench.git
-git checkout development
-cd DACBench
-pip install .[sgd]
+pip install dacbench torch torchvision hydra-core timm download smac ioh rliable
 ```
-Additionally, you need to replace the env_util.py in your dacbench installation folder in the conda environment with this file.
-For experiments including SMAC, you need to install it:
-```
-pip install smac
-```
+To make DACBench compatible with additional datasets, you need to copy [envs](ba_parameter_free_dac/dacbench_custom/envs/) and [instance_sets](ba_parameter_free_dac/dacbench_custom/instance_sets/) into your dacbench installation folder. The path will look something like this "/.conda/envs/lrcontrol/lib/python3.10/site-packages/dacbench/".
 
 ## Minimal Example
+The smallest example we provide is running Adam on the LIBSVM dataset iris.
+```
+cd ba_ba_parameter_free_dac
+python cli.py --config-name=adamfixed_libsvm dacbench_sgd_config.dataset_name=iris seed=1,2,3 -m
+```
 
 ## Experiments
-All experiments described in this Bachelor's Thesis have a corresponding config file. These can be found [here](ba_parameter_free_dac/configs/). E.g. to execute default AdamW on MNIST for seeds 1,2 and 3, run the following:
-
+All experiments described in this paper have a corresponding config file. These can be found [here](ba_parameter_free_dac/configs/). The runs are executed either via [cli.py](ba_parameter_free_dac/cli.py) (for computer vision and logistic regression) or [roberta_experiment.py](ba_parameter_free_dac/roberta_experiment.py) (for nlp). E.g. to execute D-Adaptation on CIFAR-10 for seeds 1,2 and 3, run the following:
 ```
-conda activate YourEnvironment
-cd ba_ba_parameter_free_dac
-python cli.py --config-name=adamfixed_mnist seed=1,2,3 -m
+python cli.py --config-name=dadaptation_cifar10 seed=1,2,3 -m
 ```
-
-Depending on whether you are running the job locally or on a SLURM cluster or if you want to use GPUs, you might need to choose cluster/local or cluster/cpu in [base.yaml](ba_parameter_free_dac/configs/base.yaml).
-
-To run the meta-training for SMAC Policy you can either execute the [runscripts](ba_parameter_free_dac/runscripts/) or you directly query the python script:
-
+The natural language processing experiments can be started like this:
 ```
-conda activate YourEnvironment
-cd ba_ba_parameter_free_dac
-python smac_policy.py --config-name=smacpolicy seed=2 -m
+python roberta_experiment.py --config-name=dadaptation_roberta_bookwiki seed=1 -m
 ```

@@ -5,9 +5,9 @@ import sys
 import hydra
 from ba_parameter_free_dac import run_experiment
 
-@hydra.main(version_base=None, config_path="configs", config_name="dadaptation_libsvm")
+@hydra.main(version_base=None, config_path="configs", config_name="adamfixed_libsvm")
 def main(cfg):
-    """Console script for ba_parameter_free_dac."""
+    """Console script for HP-Free vs HPO."""
     print(cfg)
     print(f"Configuration loaded: {cfg.name}")
     return run_experiment(cfg)

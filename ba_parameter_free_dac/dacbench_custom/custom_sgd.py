@@ -367,7 +367,7 @@ class CustomSGDEnv(SGDEnv):
             self.model = torch.nn.Sequential(hub_model, torch.nn.LogSoftmax(dim=1))
         elif self.custom_model:
             custom_model = custom_models.get_model(self.custom_model)
-            self.model = torch.nn.Sequential(custom_model, torch.nn.LogSoftmax(dim=1))
+            self.model = torch.nn.Sequential(custom_model, torch.nn.LogSoftmax(dim=-1))
         else:
             # Load model from config file
             self.model = sgd_utils.create_model(

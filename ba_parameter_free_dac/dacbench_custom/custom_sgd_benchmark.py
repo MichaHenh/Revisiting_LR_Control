@@ -11,9 +11,106 @@ from gymnasium import spaces
 from torch import nn
 
 from dacbench.abstract_benchmark import objdict
-from dacbench.benchmarks.sgd_benchmark import SGDBenchmark, SGD_DEFAULTS
+from dacbench.benchmarks.sgd_benchmark import SGDBenchmark
 from dacbench_custom.custom_sgd import CustomSGDEnv
+from dacbench.envs.env_utils import sgd_utils
 import dacbench
+from dacbench.abstract_benchmark import AbstractBenchmark
+
+DEFAULT_CFG_SPACE = CS.ConfigurationSpace()
+LR = CS.Float(name="learning_rate", bounds=(0.0, 0.05))
+# Value used for momentum like adaptation, as adam optimizer has no real momentum;
+# "beta1" is changed
+MOMENTUM = CS.Float(
+    name="momentum", bounds=(0.0, 1.0)
+)  # ! Only used, when "use_momentum" var in config true
+DEFAULT_CFG_SPACE.add_hyperparameter(LR)
+DEFAULT_CFG_SPACE.add_hyperparameter(MOMENTUM)
+
+
+def __default_loss_function(**kwargs):
+    return nn.NLLLoss(reduction="none", **kwargs)
+
+
+INFO = {
+    "identifier": "LR",
+    "name": "Learning Rate Adaption for Neural Networks",
+    "reward": "Negative Log Differential Validation Loss",
+    "state_description": [
+        "Step",
+        "Loss",
+        "Validation Loss",
+        "Crashed",
+    ],
+    "action_description": ["Learning Rate", "Momentum"],
+}
+
+
+SGD_DEFAULTS = objdict(
+    {
+        "config_space": DEFAULT_CFG_SPACE,
+        "observation_space_class": "Dict",
+        "observation_space_type": None,
+        "observation_space_args": [
+            {
+                "step": spaces.Box(low=0, high=np.inf, shape=(1,)),
+                "loss": spaces.Box(0, np.inf, shape=(1,)),
+                "validationLoss": spaces.Box(low=0, high=np.inf, shape=(1,)),
+                "crashed": spaces.Discrete(1),
+            }
+        ],
+        "reward_range": [-(10**9), (10**9)],
+        "device": "cpu",
+        "model_from_dataset": False,  # If true, generates:
+        # random model, optimizer_params, batch_size, crash_penalty
+        "layer_specification": [
+            (
+                sgd_utils.LayerType.CONV2D,
+                {"in_channels": 1, "out_channels": 32, "kernel_size": 3},
+            ),
+            (sgd_utils.LayerType.RELU, {}),
+            (
+                sgd_utils.LayerType.CONV2D,
+                {"in_channels": 32, "out_channels": 64, "kernel_size": 3},
+            ),
+            (sgd_utils.LayerType.RELU, {}),
+            (sgd_utils.LayerType.POOLING, {"kernel_size": 2}),
+            (sgd_utils.LayerType.DROPOUT, {"p": 0.25}),
+            (sgd_utils.LayerType.FLATTEN, {"start_dim": 1}),
+            (
+                sgd_utils.LayerType.LINEAR,
+                {"in_features": 9216, "out_features": 128},
+            ),
+            (sgd_utils.LayerType.RELU, {}),
+            (sgd_utils.LayerType.DROPOUT, {"p": 0.25}),
+            (sgd_utils.LayerType.LINEAR, {"in_features": 128, "out_features": 10}),
+            (sgd_utils.LayerType.LOGSOFTMAX, {"dim": 1}),
+        ],
+        "torch_hub_model": (False, False, False),
+        "optimizer_params": {
+            "weight_decay": 0,
+            "eps": 1e-8,
+            "betas": (0.9, 0.99),
+        },
+        "cutoff": 1e2,
+        "loss_function": __default_loss_function,
+        "loss_function_kwargs": {},
+        "training_batch_size": 64,
+        "fraction_of_dataset": 0.6,
+        "train_validation_ratio": 0.8,  # If set to None, random value is used
+        "dataset_name": "MNIST",  # If set to None, random data set is chosen;
+        # else specific set can be set: e.g. "MNIST"
+        # "reward_function":,    # Can be set, to replace the default function
+        # "state_method":,       # Can be set, to replace the default function
+        "use_momentum": False,
+        "seed": 0,
+        "crash_penalty": -100.0,
+        "multi_agent": False,
+        "instance_set_path": "../instance_sets/sgd/sgd_train_100instances.csv",
+        "benchmark_info": INFO,
+        "epoch_mode": True,
+    }
+)
 
 class CustomSGDBenchmark(SGDBenchmark):
     r"""Customizable SGD Benchmark with default configuration & relevant functions for SGD. Main differences to SGDBenchmark is a specifiable optimizer_type."""
@@ -26,9 +123,13 @@ class CustomSGDBenchmark(SGDBenchmark):
         config_path : str
             Path to config file (optional)
         """
-        #if "instance_set_path" not in config:
-        #    config["instance_set_path"] = str(Path(dacbench.envs.__file__).resolve().parent / SGD_DEFAULTS["instance_set_path"])
-        super(CustomSGDBenchmark, self).__init__(config_path, config)
+        super().__init__(config_path, config)
+        if not self.config:
+            self.config = objdict(SGD_DEFAULTS.copy())
+
+        for key in SGD_DEFAULTS:
+            if key not in self.config:
+                self.config[key] = SGD_DEFAULTS[key]
         self.optimizer_type = optimizer_type
 
     def get_environment(self):

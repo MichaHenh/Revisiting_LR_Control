@@ -13,7 +13,7 @@ class CustomTrackingWrapper(PerformanceTrackingWrapper):
         - test_accuracy
         - effective_lrs
     """
-    def __init__(self, env, performance_interval=None, track_instance_performance=True, track_effective_lr=False, track_dlr=False, logger=None):
+    def __init__(self, env, performance_interval=None, track_instance_performance=False, track_effective_lr=False, track_dlr=False, logger=None):
         super().__init__(env, performance_interval, track_instance_performance, logger)
         self.track_effective_lr = track_effective_lr
         self.track_dlr = track_dlr
