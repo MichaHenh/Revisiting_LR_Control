@@ -1,0 +1,26 @@
+defaults:
+  - base
+
+name: prodigy_dtd
+agent:
+  type: StaticAgent
+  lr: 1
+num_episodes: 1
+optimizer_type: ProdigyAdam
+track_effective_lr: true
+track_dlr: true
+
+dacbench_sgd_config:
+  cutoff: 300
+  device: cuda
+  dataset_name: DTD
+  fraction_of_dataset: 1.0
+  custom_model: vit_tiny_patch16_224
+
+hydra:
+  launcher:
+    partition: null
+    timeout_min: 300
+    gres: "gpu:1"
+    nodes: 1
+    mem_gb: 16

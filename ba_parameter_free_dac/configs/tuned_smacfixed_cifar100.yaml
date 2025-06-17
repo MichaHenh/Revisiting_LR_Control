@@ -1,0 +1,24 @@
+defaults:
+  - base
+
+name: tuned_smacfixed_cifar100
+agent:
+  type: StaticAgent
+  lr: 0.0022199946895
+num_episodes: 1
+optimizer_type: adam
+
+hydra:
+  launcher:
+    partition: null
+    timeout_min: 300
+    gres: "gpu:1"
+    nodes: 1
+    mem_gb: 16
+
+dacbench_sgd_config:
+  cutoff: 300
+  device: cuda
+  dataset_name: CIFAR100
+  fraction_of_dataset: 1.0
+  custom_model: densenet121

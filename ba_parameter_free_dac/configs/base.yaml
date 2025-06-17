@@ -1,0 +1,17 @@
+defaults:
+  - cluster/local
+
+hydra:
+  run:
+    dir: results/${name}
+  sweep:
+    dir: results/${name}
+  job:
+    chdir: true
+
+name: ${method_name}_${dacbench_sgd_config.dataset_name}
+seed: 0
+use_memray: False
+dacbench_sgd_config:
+  dataset_name: dataset
+  instance_set_path: ../../../../../instance_sets/sgd/sgd_train_100instances.csv

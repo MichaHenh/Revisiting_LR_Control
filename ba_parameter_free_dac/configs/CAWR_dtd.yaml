@@ -1,0 +1,28 @@
+defaults:
+  - base
+
+name: CAWR_dtd
+agent:
+  type: CosineAnnealingWRAgent
+  T_0: 10
+  eta_min: 0
+  base_lr: 0.005
+  t_mult: 2
+num_episodes: 1
+optimizer_type: adam
+
+dacbench_sgd_config:
+  cutoff: 8700
+  epoch_mode: False # in SGDWR paper lr is adapted every mini batch
+  device: cuda
+  dataset_name: DTD
+  fraction_of_dataset: 1.0
+  custom_model: vit_tiny_patch16_224
+
+hydra:
+  launcher:
+    partition: null
+    timeout_min: 300
+    gres: "gpu:1"
+    nodes: 1
+    mem_gb: 16

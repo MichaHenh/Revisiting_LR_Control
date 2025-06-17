@@ -1,0 +1,65 @@
+defaults:
+  - base
+  - override hydra/sweeper: HyperSMAC
+  - override hydra/launcher: submitit_slurm
+
+hydra:
+  sweeper:
+    n_trials: 50
+    budget_variable: cutoff
+    sweeper_kwargs:
+      optimizer_kwargs:
+        smac_facade: 
+          _target_: smac.facade.multi_fidelity_facade.MultiFidelityFacade
+          _partial_: true
+        intensifier: 
+          _target_: smac.intensifier.hyperband.Hyperband
+          _partial_: true
+        scenario:
+          n_trials: ${hydra.sweeper.n_trials}
+          seed: ${seed}
+          min_budget: 5
+          max_budget: 300
+          deterministic: true
+          n_workers: 1
+          output_directory: ${hydra.sweep.dir}
+    search_space:
+      hyperparameters:
+        lr:
+          type: uniform_float
+          lower: 0
+          upper: 0.1
+          default: 0.001
+          log: false
+  run:
+    dir: results/${name}
+  sweep:
+    dir: results/${name}
+  job:
+    chdir: true
+  launcher:
+    partition: null
+    timeout_min: 300
+    gres: "gpu:1"
+    nodes: 1
+    mem_gb: 16
+
+lr: 0.001
+cutoff: 300
+
+name: SMAC_fixed_cifar100
+agent:
+  type: StaticAgent
+  lr: ${lr}
+num_episodes: 1
+optimizer_type: adam
+
+dacbench_sgd_config:
+  cutoff: ${cutoff}
+  device: cuda
+  use_validation: false
+  use_testing: false
+  use_validation_as_test: True
+  dataset_name: CIFAR100
+  fraction_of_dataset: 1.0
+  custom_model: densenet121

@@ -1,0 +1,32 @@
+defaults:
+  - base
+
+name: SMAC_fixed_cifar100
+optimizer_type: adam
+num_episodes: 1
+
+hydra:
+  launcher:
+    timeout_min: 10000
+
+smac:
+  optimizer_type: adam
+  n_trials: 50
+  lr_min: 0
+  lr_max: 0.01
+  lr_default: 0.001
+  dacbench_sgd_config:
+    cutoff: 10
+    use_validation: false
+    use_testing: false
+    use_validation_as_test: True
+    dataset_name: CIFAR100
+    fraction_of_dataset: 1.0
+    instance_set_path: ../../../../../instance_sets/sgd/sgd_train_100instances.csv
+    custom_model: densenet121
+
+dacbench_sgd_config:
+  cutoff: 300
+  dataset_name: CIFAR100
+  fraction_of_dataset: 1.0
+  custom_model: densenet121

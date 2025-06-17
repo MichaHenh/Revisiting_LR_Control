@@ -1,0 +1,28 @@
+defaults:
+  - base
+
+name: tuned_CAWR_cifar100
+agent:
+  type: CosineAnnealingWRAgent
+  T_0: 39
+  base_lr: 0.0019257718469
+  eta_min: 0.0049729217242
+  t_mult: 2
+num_episodes: 1
+optimizer_type: adam
+
+hydra:
+  launcher:
+    partition: null
+    timeout_min: 300
+    gres: "gpu:1"
+    nodes: 1
+    mem_gb: 16
+
+dacbench_sgd_config:
+  epoch_mode: False # in SGDWR paper lr is adapted every mini batch 
+  device: cuda
+  cutoff: 187500 # 50000*0.8=40000 -> 40000/64 = 625 -> 300 epochs = 300*625=187500
+  dataset_name: CIFAR100
+  fraction_of_dataset: 1.0
+  custom_model: densenet121

@@ -1,0 +1,89 @@
+defaults:
+  - base
+  - override hydra/sweeper: HyperSMAC
+  - override hydra/launcher: submitit_slurm
+
+hydra:
+  sweeper:
+    n_trials: 50
+    budget_variable: steps
+    sweeper_kwargs:
+      optimizer_kwargs:
+        smac_facade: 
+          _target_: smac.facade.multi_fidelity_facade.MultiFidelityFacade
+          _partial_: true
+        intensifier: 
+          _target_: smac.intensifier.hyperband.Hyperband
+          _partial_: true
+        scenario:
+          n_trials: ${hydra.sweeper.n_trials}
+          seed: ${seed}
+          min_budget: 500
+          max_budget: 23000
+          deterministic: true
+          n_workers: 1
+          output_directory: ${hydra.sweep.dir}
+    search_space:
+      hyperparameters:
+        T0:
+          type: uniform_int
+          lower: 0
+          upper: 50
+          default: 10
+          log: false
+        eta_min:
+          type: uniform_float
+          lower: 0
+          upper: 0.005
+          default: 0
+          log: false
+        base_lr:
+          type: uniform_float
+          lower: 0
+          upper: 1
+          default: 0.005
+          log: false
+        t_mult:
+          type: uniform_int
+          lower: 1
+          upper: 5
+          default: 2
+          log: false
+  run:
+    dir: results/${name}
+  sweep:
+    dir: results/${name}
+  job:
+    chdir: true
+  launcher:
+    partition: null
+    timeout_min: 240
+    cpus_per_task: 4
+    gres: "gpu:4"
+    mem_gb: 256
+    nodes: 1
+    tasks_per_node: 1 
+
+T0: 10
+eta_min: 0
+base_lr: 0.0025
+t_mult: 2
+
+name: tune_CAWR_roberta_bookwiki_${seed}
+seed: 1
+use_evaluation: false
+manual_ddp: true
+nproc: 4
+warmup: 10000
+steps: 23000
+
+optimizer:
+  type: adam
+  lr: ${base_lr}
+  weight_decay: 0
+  betas: [0.9, 0.98]
+  track: true
+  cawr:
+    T_0: ${T0}
+    eta_min: ${eta_min}
+    t_mult: ${t_mult}

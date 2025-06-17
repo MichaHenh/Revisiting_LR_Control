@@ -1,0 +1,33 @@
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+name: tuned_smacfixed_roberta_bookwiki
+seed: 1
+manual_ddp: true
+nproc: 4
+use_evaluation: true
+steps: 23000
+warmup: 10000
+
+optimizer:
+  type: adam
+  lr: 0.0044237631561
+  weight_decay: 0
+  betas: [0.9, 0.98]
+
+# TODO needs to be adjusted
+hydra:
+  run:
+    dir: results/${name}
+  sweep:
+    dir: results/${name}
+  job:
+    chdir: true
+  launcher:
+    timeout_min: 360
+    partition: null
+    cpus_per_task: 16
+    gres: "gpu:4"
+    mem_gb: 256
+    nodes: 1
+    tasks_per_node: 1

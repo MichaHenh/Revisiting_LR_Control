@@ -1,0 +1,27 @@
+defaults:
+  - base
+
+name: dadaptation_cifar100
+agent:
+  type: StaticAgent
+  lr: 1
+num_episodes: 1
+optimizer_type: DAdaptAdam
+track_effective_lr: true
+track_dlr: true
+
+hydra:
+  launcher:
+    partition: null
+    timeout_min: 360
+    gres: "gpu:1"
+    nodes: 1
+    mem_gb: 16
+
+dacbench_sgd_config:
+  optimizer_params: null
+  device: cuda
+  cutoff: 300
+  dataset_name: CIFAR100
+  fraction_of_dataset: 1.0
+  custom_model: densenet121

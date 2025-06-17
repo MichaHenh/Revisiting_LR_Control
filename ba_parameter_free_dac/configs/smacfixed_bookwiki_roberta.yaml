@@ -1,0 +1,63 @@
+defaults:
+  - _self_
+  - override hydra/sweeper: HyperSMAC
+  - override hydra/launcher: submitit_slurm
+
+seed: 42
+name: smacfixed_bookwiki_roberta_${seed}
+
+hydra:
+  sweeper:
+    n_trials: 50
+    budget_variable: steps
+    sweeper_kwargs:
+      # max_parallelization: 0
+      optimizer_kwargs:
+        smac_facade: 
+          _target_: smac.facade.multi_fidelity_facade.MultiFidelityFacade
+          _partial_: true
+        intensifier: 
+          _target_: smac.intensifier.hyperband.Hyperband
+          _partial_: true
+        scenario:
+          n_trials: ${hydra.sweeper.n_trials}
+          seed: ${seed}
+          min_budget: 500
+          max_budget: 23000
+          deterministic: true
+          n_workers: 1
+          output_directory: ${hydra.sweep.dir}
+    search_space:
+      hyperparameters:
+        lr:
+          type: uniform_float
+          lower: 0
+          upper: 1
+          default: 0.001
+          log: false
+  run:
+    dir: results/${name}
+  sweep:
+    dir: results/${name}
+  job:
+    chdir: true
+  launcher:
+    timeout_min: 240
+    cpus_per_task: 4
+    gres: "gpu:4"
+    mem_gb: 256
+    nodes: 1
+    tasks_per_node: 1 
+
+lr: 0.001
+use_evaluation: false
+manual_ddp: true
+nproc: 4
+steps: 23000
+warmup: 10000
+
+optimizer:
+  type: adam
+  lr: ${lr}
+  weight_decay: 0
+  betas: [0.9, 0.98]
